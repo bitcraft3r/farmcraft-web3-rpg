@@ -1,6 +1,10 @@
 import type { AppProps } from "next/app";
 import { ThirdwebProvider } from "@thirdweb-dev/react";
-import "../styles/globals.css";
+// import "../styles/globals.css";
+import { ChakraProvider } from "@chakra-ui/react";
+import { ScrollAlphaTestnet } from "@thirdweb-dev/chains";
+
+import NavBar from "../components/Navbar";
 
 // This is the chain your dApp will work on.
 // Change this to the chain your app is built for.
@@ -9,8 +13,11 @@ const activeChain = "ethereum";
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (
-    <ThirdwebProvider activeChain={activeChain}>
-      <Component {...pageProps} />
+    <ThirdwebProvider activeChain={ScrollAlphaTestnet}>
+      <ChakraProvider>
+        <NavBar />
+        <Component {...pageProps} />
+      </ChakraProvider>
     </ThirdwebProvider>
   );
 }
