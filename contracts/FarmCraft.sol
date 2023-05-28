@@ -57,19 +57,35 @@ contract FarmCraft is ERC721, Ownable {
 
     Counters.Counter private cropTypeCounter;
 
-    constructor() ERC721("FarmCraft Farmer", "FARMER") {
+    constructor() ERC721("FarmCraft", "FARMER") {
         nextTokenId = 1;
     }
 
     // Getter functions for the mappings
+
+    /**
+     * @dev Get information about a specific crop.
+     * @param cropId The ID of the crop to retrieve.
+     * @return The Crop struct representing the crop information.
+     */
     function getCrop(uint256 cropId) external view returns (Crop memory) {
         return crops[cropId];
     }
 
+    /**
+     * @dev Get information about a specific farmer.
+     * @param farmerId The ID of the farmer to retrieve.
+     * @return The Farmer struct representing the farmer information.
+     */
     function getFarmer(uint256 farmerId) external view returns (Farmer memory) {
         return farmers[farmerId];
     }
 
+    /**
+     * @dev Get information about a specific crop type.
+     * @param cropTypeId The ID of the crop type to retrieve.
+     * @return The CropType struct representing the crop type information.
+     */
     function getCropType(uint256 cropTypeId) external view returns (CropType memory) {
         return cropTypes[cropTypeId];
     }
@@ -106,6 +122,10 @@ contract FarmCraft is ERC721, Ownable {
         );
     }
 
+    /**
+     * @dev Mint a new farmer NFT.
+     * @param imageIpfsHash The IPFS hash of the farmer's image.
+     */
     function mintFarmer(string memory imageIpfsHash) external {
         _safeMint(msg.sender, nextTokenId);
         farmers[nextTokenId] = Farmer(
@@ -125,6 +145,11 @@ contract FarmCraft is ERC721, Ownable {
         totalFarmers++;
     }
 
+    /**
+     * @dev Buy seeds using GOLD.
+     * @param farmerId The ID of the farmer buying the seeds.
+     * @param amount The amount of GOLD used to buy seeds.
+     */
     function buySeeds(uint256 farmerId, uint256 amount) external {
         require(ownerOf(farmerId) == msg.sender, "Only farmer owner can buy seeds");
 
@@ -139,6 +164,10 @@ contract FarmCraft is ERC721, Ownable {
         _initiateMetadata(farmerId);
     }
 
+    /**
+     * @dev Start a foraging quest.
+     * @param farmerId The ID of the farmer starting the quest.
+     */
     function startForagingQuest(uint256 farmerId) external {
         require(ownerOf(farmerId) == msg.sender, "Only farmer owner can start the quest");
         require(!farmers[farmerId].questActive, "Quest is already active");
@@ -148,6 +177,10 @@ contract FarmCraft is ERC721, Ownable {
         _initiateMetadata(farmerId);
     }
 
+    /**
+     * @dev Complete a foraging quest.
+     * @param farmerId The ID of the farmer completing the quest.
+     */
     function endForagingQuest(uint256 farmerId) external {
         require(ownerOf(farmerId) == msg.sender, "Only farmer owner can end the quest");
         require(farmers[farmerId].questActive, "Quest is not active");
@@ -161,6 +194,11 @@ contract FarmCraft is ERC721, Ownable {
         _initiateMetadata(farmerId);
     }
 
+    /**
+     * @dev Plant a new crop.
+     * @param farmerId The ID of the farmer planting the crop.
+     * @param cropTypeId The ID of the crop type to plant.
+     */
     function plantCrop(uint256 farmerId, uint256 cropTypeId) external {
         require(ownerOf(farmerId) == msg.sender, "Only farmer owner can plant crops");
         require(cropTypeId < cropTypeCounter.current(), "Invalid crop type ID");
@@ -178,6 +216,11 @@ contract FarmCraft is ERC721, Ownable {
         _initiateMetadata(farmerId);
     }
 
+    /**
+     * @dev Harvest a crop.
+     * @param farmerId The ID of the farmer harvesting the crop.
+     * @param cropId The ID of the crop to harvest.
+     */
     function harvestCrop(uint256 farmerId, uint256 cropId) external {
         require(ownerOf(farmerId) == msg.sender, "Only farmer owner can harvest crops");
         require(cropId < totalCrops, "Invalid crop ID");
@@ -197,6 +240,11 @@ contract FarmCraft is ERC721, Ownable {
         _initiateMetadata(farmerId);
     }
 
+    /**
+     * @dev Sell crops for GOLD.
+     * @param farmerId The ID of the farmer selling crops.
+     * @param amount The amount of crops to sell.
+     */
     function sellCrops(uint256 farmerId, uint256 amount) external {
         require(ownerOf(farmerId) == msg.sender, "Only farmer owner can sell crops");
         require(farmers[farmerId].cropsEarned >= amount, "Insufficient crops to sell");
@@ -212,6 +260,13 @@ contract FarmCraft is ERC721, Ownable {
         _initiateMetadata(farmerId);
     }
 
+    /**
+     * @dev Create a new crop type.
+     * @param maturityTime The time it takes for the crop to mature.
+     * @param yield The amount of crops yielded when harvesting.
+     * @param rewards The amount of rewards earned when harvesting.
+     * @param seedCost The cost in seeds to plant this crop type.
+     */
     function addCropType(uint256 maturityTime, uint256 yield, uint256 rewards, uint256 seedCost) external onlyOwner {
         CropType storage newCropType = cropTypes[cropTypeCounter.current()];
         newCropType.maturityTime = maturityTime;
@@ -254,6 +309,6 @@ contract FarmCraft is ERC721, Ownable {
     }
 
     function _baseURI() internal view virtual override returns (string memory) {
-        return "https://gateway.pinata.cloud/ipfs/QmQGgmAv2LybwF3N7EQPHiq3bevku3LEZvHMM1aUH7C1Zh/";
+        return "QmQGgmAv2LybwF3N7EQPHiq3bevku3LEZvHMM1aUH7C1Zh";
     }
 }
