@@ -1,33 +1,26 @@
 {
   "name": "client",
-  "version": "0.1.0",
   "private": true,
+  "version": "0.1.0",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "export": "next export",
-    "deploy": "next build && next export && npx thirdweb@latest upload out"
+    "lint": "next lint"
   },
   "dependencies": {
-    "@chakra-ui/react": "^2.6.1",
-    "@emotion/react": "^11.11.0",
-    "@emotion/styled": "^11.11.0",
-    "@thirdweb-dev/chains": "^0.1.18",
-    "@thirdweb-dev/react": "^3",
-    "@thirdweb-dev/sdk": "^3",
-    "ethers": "^5",
-    "framer-motion": "^10.12.16",
-    "next": "^13",
-    "react": "^18.2",
-    "react-dom": "^18.2"
+    "@rainbow-me/rainbowkit": "^1.0.1",
+    "next": "^13.4.3",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "viem": "~0.3.35",
+    "wagmi": "~1.0.5"
   },
   "devDependencies": {
-    "@types/node": "^18.11.11",
-    "@types/react": "^18",
-    "eslint": "^8.29.0",
-    "eslint-config-next": "^13",
-    "typescript": "^4.9.4"
+    "@types/node": "^18.16.12",
+    "@types/react": "^18.2.6",
+    "eslint": "^8.15.0",
+    "eslint-config-next": "^13.4.3",
+    "typescript": "^5.0.4"
   }
 }
