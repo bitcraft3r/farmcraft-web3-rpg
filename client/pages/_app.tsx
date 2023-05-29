@@ -9,6 +9,8 @@ import {
   arbitrumGoerli, scrollTestnet, goerli,
 } from 'wagmi/chains';
 import { publicProvider } from 'wagmi/providers/public';
+import styles from '../styles/Home.module.css';
+import Navbar from '../components/Navbar';
 
 const mantleTestnet: Chain = {
   id: 5_001,
@@ -71,7 +73,12 @@ function MyApp({ Component, pageProps }: AppProps) {
   return (
     <WagmiConfig config={wagmiConfig}>
       <RainbowKitProvider chains={chains}>
-        <Component {...pageProps} />
+        <div className={styles.container} style={{ height: '100vh' }}>
+          <Navbar />
+          <div style={{ padding: "1rem" }}>
+            <Component {...pageProps} />
+          </div>
+        </div>
       </RainbowKitProvider>
     </WagmiConfig>
   );
