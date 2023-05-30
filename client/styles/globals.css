@@ -1,3 +1,17 @@
+:root {
+  background: linear-gradient(to top left, #0c1a1b, #2d3e3c);
+  /* PALETTE PROVIDED BY: https://imagecolorpicker.com/ */
+  /* color: #282f2c; */
+  color: #ba9c5c;
+  /* color: #79673e; */
+  /* color: #7ba769; */
+  /* color: #4f784a; */
+  /* color: #485a2c; */
+  /* color: #a83a16; */
+  /* color: #4e5568; */
+  /* color: #56929d; */
+}
+
 html,
 body {
   padding: 0;
