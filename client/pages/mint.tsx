@@ -4,7 +4,8 @@ import CONTRACT_ABI from '../data/abi.json'
 
 const Mint = () => {
     const { config, error: prepareError, isError: isPrepareError} = usePrepareContractWrite({
-        address: '0x136F1c8362eA05287A90F106663d5DEC0ad3365F',
+        // @ts-ignore
+        address: process.env.NEXT_PUBLIC_CONTRACT_ADDRESS,
         abi: CONTRACT_ABI,
         functionName: 'mintFarmer',
         args: ["QmQGgmAv2LybwF3N7EQPHiq3bevku3LEZvHMM1aUH7C1Zh"]

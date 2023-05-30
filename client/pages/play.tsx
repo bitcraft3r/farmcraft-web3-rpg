@@ -2,6 +2,8 @@ import Head from "next/head"
 import { useAccount, useContractRead } from 'wagmi'
 import CONTRACT_ABI from '../data/abi.json'
 import { useEffect, useState, Suspense } from "react"
+import GameDashboard from "./game/GameDashboard"
+import Link from "next/link"
 
 const Play = () => {
   const [hasFarmer, setHasFarmer] = useState(false)
@@ -12,7 +14,8 @@ const Play = () => {
   // args: [address || '0x0000000000000000000000000000000000000000'],
   // But if no wallet is connected, there will be another error caused by reading the non-existent contract on the default chain.
   const { data, isError, isLoading } = useContractRead({
-    address: '0x136F1c8362eA05287A90F106663d5DEC0ad3365F',
+    // @ts-ignore
+    address: process.env.NEXT_PUBLIC_CONTRACT_ADDRESS,
     abi: CONTRACT_ABI,
     functionName: 'balanceOf',
     args: [address],
@@ -42,8 +45,8 @@ const Play = () => {
         <main>
             <div>
             {!hasFarmer
-              ? "Mint a Famer to get started!"
-              : "You have a Farmer. Start playing!"
+              ? "Connect Wallet & Mint a Famer to get started!"
+              : <GameDashboard />
             }
             </div>
         </main>

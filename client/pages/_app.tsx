@@ -50,8 +50,8 @@ const { chains, publicClient, webSocketPublicClient } = configureChains(
     // mainnet,
     // polygon,
     // optimism,
-    arbitrum,
-    ...(process.env.NEXT_PUBLIC_ENABLE_TESTNETS === 'true' ? [arbitrumGoerli, scrollAlpha, mantleTestnet] : []),
+    // arbitrum,
+    ...(process.env.NEXT_PUBLIC_ENABLE_TESTNETS === 'true' ? [scrollAlpha, mantleTestnet] : []),
   ],
   [publicProvider()]
 );
@@ -72,7 +72,7 @@ const wagmiConfig = createConfig({
 function MyApp({ Component, pageProps }: AppProps) {
   return (
     <WagmiConfig config={wagmiConfig}>
-      <RainbowKitProvider chains={chains}>
+      <RainbowKitProvider chains={chains} initialChain={scrollAlpha}>
         <div className={styles.container} style={{ height: '100vh' }}>
           <Navbar />
           <div style={{ padding: "1rem" }}>
