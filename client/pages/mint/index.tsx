@@ -36,7 +36,7 @@ const Mint = () => {
                 <div>
                 Successfully minted your NFT!
                 <div>
-                    <a href={`https://goerli.arbiscan.io/tx/${data?.hash}`} rel="noreferrer noopener" target="_blank">Arbiscan</a>
+                    <a href={`https://blockscout.scroll.io/tx/${data?.hash}`} rel="noreferrer noopener" target="_blank">View on block explorer</a>
                 </div>
                 </div>
             )}
