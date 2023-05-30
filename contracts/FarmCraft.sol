@@ -8,6 +8,12 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/utils/Base64.sol";
 
+// TODO: Add new getter fn getFamerTokenIdByAddress().
+// TODO: Add new fn harvestAllReadyCrops().
+// TODO: Fix crops[] in Farmer not correctly showing active crops. I want to get all crops of the farmer and know which has been harvested, which are active (planted), and which of the active ones can be harvested.
+// TODO: Fix metadata of nfts. image & metadata not added correctly.
+// TODO: Add other getter functions where necessary to help keep track of state of the farmer
+
 contract FarmCraft is ERC721, Ownable {
     using EnumerableSet for EnumerableSet.UintSet;
     using Counters for Counters.Counter;
@@ -90,9 +96,6 @@ contract FarmCraft is ERC721, Ownable {
     function getCropType(uint256 cropTypeId) external view returns (CropType memory) {
         return cropTypes[cropTypeId];
     }
-
-    // TODO: Add other getter functions to help keep track of state of the farmer,
-    // e.g. TODO: Get all crops of a farmer that have not been harvested
 
     function _initiateMetadata(uint256 farmerId) private {
         Farmer storage farmer = farmers[farmerId];
