@@ -1,8 +1,8 @@
 import Head from "next/head"
 import { useAccount, useContractRead } from 'wagmi'
-import CONTRACT_ABI from '../data/abi.json'
+import CONTRACT_ABI from '../../data/abi.json'
 import { useEffect, useState, Suspense } from "react"
-import GameDashboard from "./game/GameDashboard"
+import GameDashboard from "./GameDashboard"
 import Link from "next/link"
 
 const Play = () => {
