@@ -38,17 +38,17 @@ const GameDashboard: React.FC<GameDashboardProps> = ({ address }) => {
       
       {/* Player */}
       <div style={{ width: "200px", height: "100%", border: "1px solid gray" }}>
-        <ContainerPlayer />
+        <ContainerPlayer address={address} />
       </div>
 
       {/* Attributes */}
       <div style={{ width: "200px", height: "100%", border: "1px solid gray" }}>
-        <ContainerStats />
+        <ContainerStats address={address} />
       </div>
 
       {/* Resources */}
       <div style={{ position: "absolute", right: "10%", top: "15%", width: "150px", height: "150px", border: "1px solid gray" }}>
-        <ContainerResources />
+        <ContainerResources address={address} />
       </div>
 
     </div>
