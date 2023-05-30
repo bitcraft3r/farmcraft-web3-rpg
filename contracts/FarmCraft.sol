@@ -18,13 +18,12 @@ contract FarmCraft is ERC721, Ownable {
     uint256 public totalGoldEarned;
 
     uint256 public constant QUEST_DURATION = 1 minutes;
-    uint256 public constant SEEDS_FOR_GOLD = 5; // Number of crops required to buy 1 GOLD
+    uint256 public constant SEEDS_FOR_GOLD = 5; // Number of seeds required to sell for 1 GOLD
     uint256 public constant CROPS_FOR_GOLD = 10; // Number of crops required to buy 1 GOLD
 
     struct Crop {
         uint256 maturityTime;
         uint256 yield;
-        uint256 rewards;
         uint256 plantedAt;
         bool harvested;
     }
@@ -45,7 +44,6 @@ contract FarmCraft is ERC721, Ownable {
     struct CropType {
         uint256 maturityTime;
         uint256 yield;
-        uint256 rewards;
         uint256 seedCost;
     }
 
@@ -127,6 +125,7 @@ contract FarmCraft is ERC721, Ownable {
      * @param imageIpfsHash The IPFS hash of the farmer's image.
      */
     function mintFarmer(string memory imageIpfsHash) external {
+        // TODO: Limit to 1 farmer per address
         _safeMint(msg.sender, nextTokenId);
         farmers[nextTokenId] = Farmer(
             msg.sender,
@@ -208,7 +207,7 @@ contract FarmCraft is ERC721, Ownable {
         require(farmer.seeds >= cropType.seedCost, "Insufficient SEEDs");
 
         uint256 cropId = totalCrops;
-        crops[cropId] = Crop(cropType.maturityTime, cropType.yield, cropType.rewards, block.timestamp, false);
+        crops[cropId] = Crop(cropType.maturityTime, cropType.yield, block.timestamp, false);
         farmerCrops[farmerId].add(cropId);
         farmer.seeds -= cropType.seedCost;
         totalCrops++;
@@ -233,10 +232,8 @@ contract FarmCraft is ERC721, Ownable {
 
         crop.harvested = true;
         farmer.cropsEarned += crop.yield;
-        farmer.gold += crop.rewards;
         totalCropsSold += crop.yield;
-        totalGoldEarned += crop.rewards;
-        farmer.experience += 1; // Increase experience for harvesting a crop
+        farmer.experience += crop.yield; // Increase experience for harvesting a crop
         _initiateMetadata(farmerId);
     }
 
@@ -256,7 +253,7 @@ contract FarmCraft is ERC721, Ownable {
         farmer.gold += goldToEarn;
         totalCropsSold += amount;
         totalGoldEarned += goldToEarn;
-        farmer.experience += 1; // Increase experience for selling crops
+        farmer.experience += goldToEarn; // Increase experience for selling crops
         _initiateMetadata(farmerId);
     }
 
@@ -264,14 +261,12 @@ contract FarmCraft is ERC721, Ownable {
      * @dev Create a new crop type.
      * @param maturityTime The time it takes for the crop to mature.
      * @param yield The amount of crops yielded when harvesting.
-     * @param rewards The amount of rewards earned when harvesting.
      * @param seedCost The cost in seeds to plant this crop type.
      */
-    function addCropType(uint256 maturityTime, uint256 yield, uint256 rewards, uint256 seedCost) external onlyOwner {
+    function addCropType(uint256 maturityTime, uint256 yield, uint256 seedCost) external onlyOwner {
         CropType storage newCropType = cropTypes[cropTypeCounter.current()];
         newCropType.maturityTime = maturityTime;
         newCropType.yield = yield;
-        newCropType.rewards = rewards;
         newCropType.seedCost = seedCost;
         cropTypeCounter.increment();
     }
@@ -309,6 +304,6 @@ contract FarmCraft is ERC721, Ownable {
     }
 
     function _baseURI() internal view virtual override returns (string memory) {
-        return "QmQGgmAv2LybwF3N7EQPHiq3bevku3LEZvHMM1aUH7C1Zh";
+        return "QmQGgmAv2LybwF3N7EQPHiq3bevku3LEZvHMM1aUH7C1Zh"; // TODO: this should return the full url? Fix BUG: Metadata and image of NFT is not created correctly. 
     }
 }
