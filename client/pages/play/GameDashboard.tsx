@@ -9,7 +9,11 @@ import ContainerPlayer from './GameDashboard/ContainerPlayer'
 import ContainerStats from './GameDashboard/ContainerStats'
 import ContainerResources from './GameDashboard/ContainerResources'
 
-const GameDashboard = () => {
+interface GameDashboardProps {
+  address: `0x${string}` | undefined
+}
+
+const GameDashboard: React.FC<GameDashboardProps> = ({ address }) => {
   return (
     <div>
       <div>
@@ -18,10 +22,10 @@ const GameDashboard = () => {
 
         {/* Actions */}
         <div style={{ position: "absolute", top: "60%", left: "40%", transform: "translate(-60%, -40%)" }}>
-          <ButtonFarm />
+          <ButtonFarm address={address} />
         </div>
         <div style={{ position: "absolute", top: "55%", left: "80%", transform: "translate(-55%, -80%)" }}>
-          <ButtonQuest />
+          <ButtonQuest address={address} />
         </div>
         <div style={{ position: "absolute", top: "75%", left: "50%", transform: "translate(-75%, -50%)" }}>
           <ButtonSell />

@@ -1,9 +1,8 @@
 import Head from "next/head"
 import { useAccount, useContractRead } from 'wagmi'
 import CONTRACT_ABI from '../../data/abi.json'
-import { useEffect, useState, Suspense } from "react"
+import { useEffect, useState } from "react"
 import GameDashboard from "./GameDashboard"
-import Link from "next/link"
 
 const Play = () => {
   const [hasFarmer, setHasFarmer] = useState(false)
@@ -46,7 +45,7 @@ const Play = () => {
             <div>
             {!hasFarmer
               ? "Connect Wallet & Mint a Famer to get started!"
-              : <GameDashboard />
+              : <GameDashboard address={address} />
             }
             </div>
         </main>
