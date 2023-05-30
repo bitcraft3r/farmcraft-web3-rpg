@@ -8,10 +8,10 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/utils/Base64.sol";
 
-// TODO: Add new getter fn getFamerTokenIdByAddress().
 // TODO: Add new fn harvestAllReadyCrops().
 // TODO: Fix crops[] in Farmer not correctly showing active crops. I want to get all crops of the farmer and know which has been harvested, which are active (planted), and which of the active ones can be harvested.
 // TODO: Add other getter functions & events where necessary to help keep track of state of the farmer
+// TODO: Add multiplayer mini-game
 
 contract FarmCraft is ERC721, Ownable {
     using EnumerableSet for EnumerableSet.UintSet;
@@ -60,6 +60,7 @@ contract FarmCraft is ERC721, Ownable {
     mapping(uint256 => CropType) private cropTypes;
     mapping(uint256 => EnumerableSet.UintSet) private farmerCrops;
     mapping(address => bool) private addressMinted;
+    mapping(address => uint256) private farmerTokenIds;
 
     Counters.Counter private cropTypeCounter;
 
@@ -96,6 +97,15 @@ contract FarmCraft is ERC721, Ownable {
         return cropTypes[cropTypeId];
     }
 
+    /**
+     * @dev Get the token ID of the farmer by address.
+     * @param farmerAddress The address of the farmer.
+     * @return The token ID of the farmer.
+     */
+    function getFarmerTokenIdByAddress(address farmerAddress) external view returns (uint256) {
+        return farmerTokenIds[farmerAddress];
+    }
+    
     function _initiateMetadata(uint256 farmerId) private {
         Farmer storage farmer = farmers[farmerId];
         _setTokenURI(farmerId, _constructTokenURI(farmerId, farmer));
@@ -158,6 +168,7 @@ contract FarmCraft is ERC721, Ownable {
         require(!addressMinted[msg.sender], "Only one farmer per address");
 
         _safeMint(msg.sender, nextTokenId);
+        uint256 farmerId = nextTokenId;
         farmers[nextTokenId] = Farmer(
             msg.sender,
             0,
@@ -171,6 +182,7 @@ contract FarmCraft is ERC721, Ownable {
             imageIpfsHash
         );
         _initiateMetadata(nextTokenId);
+        farmerTokenIds[msg.sender] = farmerId;
         nextTokenId++;
         totalFarmers++;
         addressMinted[msg.sender] = true;
