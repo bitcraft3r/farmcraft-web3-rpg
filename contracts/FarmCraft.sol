@@ -52,6 +52,7 @@ contract FarmCraft is ERC721, Ownable {
     mapping(uint256 => Farmer) private farmers;
     mapping(uint256 => CropType) private cropTypes;
     mapping(uint256 => EnumerableSet.UintSet) private farmerCrops;
+    mapping(address => bool) private addressMinted;
 
     Counters.Counter private cropTypeCounter;
 
@@ -125,7 +126,8 @@ contract FarmCraft is ERC721, Ownable {
      * @param imageIpfsHash The IPFS hash of the farmer's image.
      */
     function mintFarmer(string memory imageIpfsHash) external {
-        // TODO: Limit to 1 farmer per address
+        require(!addressMinted[msg.sender], "Only one farmer per address");
+
         _safeMint(msg.sender, nextTokenId);
         farmers[nextTokenId] = Farmer(
             msg.sender,
@@ -142,6 +144,7 @@ contract FarmCraft is ERC721, Ownable {
         _initiateMetadata(nextTokenId);
         nextTokenId++;
         totalFarmers++;
+        addressMinted[msg.sender] = true;
     }
 
     /**
