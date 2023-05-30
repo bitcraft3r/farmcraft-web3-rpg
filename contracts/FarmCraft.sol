@@ -8,12 +8,6 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/utils/Base64.sol";
 
-// TODO: Add new getter fn getFamerTokenIdByAddress().
-// TODO: Add new fn harvestAllReadyCrops().
-// TODO: Fix crops[] in Farmer not correctly showing active crops. I want to get all crops of the farmer and know which has been harvested, which are active (planted), and which of the active ones can be harvested.
-// TODO: Fix metadata of nfts. image & metadata not added correctly.
-// TODO: Add other getter functions where necessary to help keep track of state of the farmer
-
 contract FarmCraft is ERC721, Ownable {
     using EnumerableSet for EnumerableSet.UintSet;
     using Counters for Counters.Counter;
@@ -97,6 +91,9 @@ contract FarmCraft is ERC721, Ownable {
         return cropTypes[cropTypeId];
     }
 
+    // TODO: Add other getter functions to help keep track of state of the farmer,
+    // e.g. TODO: Get all crops of a farmer that have not been harvested
+
     function _initiateMetadata(uint256 farmerId) private {
         Farmer storage farmer = farmers[farmerId];
         _setTokenURI(farmerId, _constructTokenURI(farmerId, farmer));
@@ -107,11 +104,11 @@ contract FarmCraft is ERC721, Ownable {
         _tokenURIs[tokenId] = tokenURI;
     }
 
-    function _constructTokenURI(uint256 tokenId, Farmer memory farmer) private view returns (string memory) {
-        string memory baseURI = _baseURI();
+    function _constructTokenURI(uint256 tokenId, Farmer memory farmer) private pure returns (string memory) {
+        // string memory baseURI = _baseURI();
         string memory name = string(abi.encodePacked("Farmer #", uintToStr(tokenId)));
         string memory description = "FarmCraft Farmer NFTs by Omniv3rse.com.";
-        string memory image = farmer.imageIpfsHash;
+        string memory image = string(abi.encodePacked("https://gateway.pinata.cloud/ipfs/", farmer.imageIpfsHash));
 
         string memory attributes = string(
             abi.encodePacked(
@@ -147,7 +144,8 @@ contract FarmCraft is ERC721, Ownable {
             )
         );
 
-        return string(abi.encodePacked(baseURI, json));
+        // return string(abi.encodePacked(baseURI, json));
+        return string(abi.encodePacked('data:application/json;base64,', json));
     }
 
     /**
@@ -332,6 +330,6 @@ contract FarmCraft is ERC721, Ownable {
     }
 
     function _baseURI() internal view virtual override returns (string memory) {
-        return "https://gateway.pinata.cloud/ipfs/QmQGgmAv2LybwF3N7EQPHiq3bevku3LEZvHMM1aUH7C1Zh/";
+        return "https://gateway.pinata.cloud/ipfs/";
     }
 }
