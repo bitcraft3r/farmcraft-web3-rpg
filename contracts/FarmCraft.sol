@@ -5,6 +5,8 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
+import "@openzeppelin/contracts/utils/Base64.sol";
 
 contract FarmCraft is ERC721, Ownable {
     using EnumerableSet for EnumerableSet.UintSet;
@@ -89,6 +91,9 @@ contract FarmCraft is ERC721, Ownable {
         return cropTypes[cropTypeId];
     }
 
+    // TODO: Add other getter functions to help keep track of state of the farmer,
+    // e.g. TODO: Get all crops of a farmer that have not been harvested
+
     function _initiateMetadata(uint256 farmerId) private {
         Farmer storage farmer = farmers[farmerId];
         _setTokenURI(farmerId, _constructTokenURI(farmerId, farmer));
@@ -99,14 +104,15 @@ contract FarmCraft is ERC721, Ownable {
         _tokenURIs[tokenId] = tokenURI;
     }
 
-    function _constructTokenURI(uint256 tokenId, Farmer memory farmer) private pure returns (string memory) {
-        return string(
+    function _constructTokenURI(uint256 tokenId, Farmer memory farmer) private view returns (string memory) {
+        string memory baseURI = _baseURI();
+        string memory name = string(abi.encodePacked("Farmer #", uintToStr(tokenId)));
+        string memory description = "FarmCraft Farmer NFTs by Omniv3rse.com.";
+        string memory image = farmer.imageIpfsHash;
+
+        string memory attributes = string(
             abi.encodePacked(
-                '{"name":"Farmer #',
-                uintToStr(tokenId),
-                '","description":"FarmCraft Farmer","image":"',
-                farmer.imageIpfsHash,
-                '","attributes":[{"trait_type":"Experience","value":',
+                '[{"trait_type":"Experience","value":',
                 uintToStr(farmer.experience),
                 '},{"trait_type":"Level","value":',
                 uintToStr(farmer.level),
@@ -116,9 +122,29 @@ contract FarmCraft is ERC721, Ownable {
                 uintToStr(farmer.gold),
                 '},{"trait_type":"Crops","value":',
                 uintToStr(farmer.cropsEarned),
-                '}]}' 
+                '}]'
             )
         );
+
+        string memory json = Base64.encode(
+            bytes(
+                string(
+                    abi.encodePacked(
+                        '{"name":"',
+                        name,
+                        '","description":"',
+                        description,
+                        '","image":"',
+                        image,
+                        '","attributes":',
+                        attributes,
+                        '}'
+                    )
+                )
+            )
+        );
+
+        return string(abi.encodePacked(baseURI, json));
     }
 
     /**
@@ -295,18 +321,14 @@ contract FarmCraft is ERC721, Ownable {
 
     function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
         require(_exists(tokenId), "ERC721Metadata: URI query for nonexistent token");
-        string memory _tokenURI = _tokenURIs[tokenId];
         string memory baseURI = _baseURI();
         if (bytes(baseURI).length == 0) {
-            return _tokenURI;
+            return "";
         }
-        if (bytes(_tokenURI).length > 0) {
-            return string(abi.encodePacked(baseURI, _tokenURI));
-        }
-        return super.tokenURI(tokenId);
+        return _constructTokenURI(tokenId, farmers[tokenId]);
     }
 
     function _baseURI() internal view virtual override returns (string memory) {
-        return "QmQGgmAv2LybwF3N7EQPHiq3bevku3LEZvHMM1aUH7C1Zh"; // TODO: this should return the full url? Fix BUG: Metadata and image of NFT is not created correctly. 
+        return "https://gateway.pinata.cloud/ipfs/QmQGgmAv2LybwF3N7EQPHiq3bevku3LEZvHMM1aUH7C1Zh/";
     }
 }
