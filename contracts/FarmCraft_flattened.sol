@@ -1,4 +1,99 @@
 
+// File: @openzeppelin/contracts/utils/Base64.sol
+
+
+// OpenZeppelin Contracts (last updated v4.7.0) (utils/Base64.sol)
+
+pragma solidity ^0.8.0;
+
+/**
+ * @dev Provides a set of functions to operate with Base64 strings.
+ *
+ * _Available since v4.5._
+ */
+library Base64 {
+    /**
+     * @dev Base64 Encoding/Decoding Table
+     */
+    string internal constant _TABLE = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+
+    /**
+     * @dev Converts a `bytes` to its Bytes64 `string` representation.
+     */
+    function encode(bytes memory data) internal pure returns (string memory) {
+        /**
+         * Inspired by Brecht Devos (Brechtpd) implementation - MIT licence
+         * https://github.com/Brechtpd/base64/blob/e78d9fd951e7b0977ddca77d92dc85183770daf4/base64.sol
+         */
+        if (data.length == 0) return "";
+
+        // Loads the table into memory
+        string memory table = _TABLE;
+
+        // Encoding takes 3 bytes chunks of binary data from `bytes` data parameter
+        // and split into 4 numbers of 6 bits.
+        // The final Base64 length should be `bytes` data length multiplied by 4/3 rounded up
+        // - `data.length + 2`  -> Round up
+        // - `/ 3`              -> Number of 3-bytes chunks
+        // - `4 *`              -> 4 characters for each chunk
+        string memory result = new string(4 * ((data.length + 2) / 3));
+
+        /// @solidity memory-safe-assembly
+        assembly {
+            // Prepare the lookup table (skip the first "length" byte)
+            let tablePtr := add(table, 1)
+
+            // Prepare result pointer, jump over length
+            let resultPtr := add(result, 32)
+
+            // Run over the input, 3 bytes at a time
+            for {
+                let dataPtr := data
+                let endPtr := add(data, mload(data))
+            } lt(dataPtr, endPtr) {
+
+            } {
+                // Advance 3 bytes
+                dataPtr := add(dataPtr, 3)
+                let input := mload(dataPtr)
+
+                // To write each character, shift the 3 bytes (18 bits) chunk
+                // 4 times in blocks of 6 bits for each character (18, 12, 6, 0)
+                // and apply logical AND with 0x3F which is the number of
+                // the previous character in the ASCII table prior to the Base64 Table
+                // The result is then added to the table to get the character to write,
+                // and finally write it in the result pointer but with a left shift
+                // of 256 (1 byte) - 8 (1 ASCII char) = 248 bits
+
+                mstore8(resultPtr, mload(add(tablePtr, and(shr(18, input), 0x3F))))
+                resultPtr := add(resultPtr, 1) // Advance
+
+                mstore8(resultPtr, mload(add(tablePtr, and(shr(12, input), 0x3F))))
+                resultPtr := add(resultPtr, 1) // Advance
+
+                mstore8(resultPtr, mload(add(tablePtr, and(shr(6, input), 0x3F))))
+                resultPtr := add(resultPtr, 1) // Advance
+
+                mstore8(resultPtr, mload(add(tablePtr, and(input, 0x3F))))
+                resultPtr := add(resultPtr, 1) // Advance
+            }
+
+            // When data `bytes` is not exactly 3 bytes long
+            // it is padded with `=` characters at the end
+            switch mod(mload(data), 3)
+            case 1 {
+                mstore8(sub(resultPtr, 1), 0x3d)
+                mstore8(sub(resultPtr, 2), 0x3d)
+            }
+            case 2 {
+                mstore8(sub(resultPtr, 1), 0x3d)
+            }
+        }
+
+        return result;
+    }
+}
+
 // File: @openzeppelin/contracts/utils/Counters.sol
 
 
@@ -426,56 +521,10 @@ library EnumerableSet {
     }
 }
 
-// File: @openzeppelin/contracts/utils/math/SignedMath.sol
-
-
-// OpenZeppelin Contracts (last updated v4.8.0) (utils/math/SignedMath.sol)
-
-pragma solidity ^0.8.0;
-
-/**
- * @dev Standard signed math utilities missing in the Solidity language.
- */
-library SignedMath {
-    /**
-     * @dev Returns the largest of two signed numbers.
-     */
-    function max(int256 a, int256 b) internal pure returns (int256) {
-        return a > b ? a : b;
-    }
-
-    /**
-     * @dev Returns the smallest of two signed numbers.
-     */
-    function min(int256 a, int256 b) internal pure returns (int256) {
-        return a < b ? a : b;
-    }
-
-    /**
-     * @dev Returns the average of two signed numbers without overflow.
-     * The result is rounded towards zero.
-     */
-    function average(int256 a, int256 b) internal pure returns (int256) {
-        // Formula from the book "Hacker's Delight"
-        int256 x = (a & b) + ((a ^ b) >> 1);
-        return x + (int256(uint256(x) >> 255) & (a ^ b));
-    }
-
-    /**
-     * @dev Returns the absolute unsigned value of a signed value.
-     */
-    function abs(int256 n) internal pure returns (uint256) {
-        unchecked {
-            // must be unchecked in order to support `n = type(int256).min`
-            return uint256(n >= 0 ? n : -n);
-        }
-    }
-}
-
 // File: @openzeppelin/contracts/utils/math/Math.sol
 
 
-// OpenZeppelin Contracts (last updated v4.9.0) (utils/math/Math.sol)
+// OpenZeppelin Contracts (last updated v4.8.0) (utils/math/Math.sol)
 
 pragma solidity ^0.8.0;
 
@@ -528,7 +577,11 @@ library Math {
      * @dev Original credit to Remco Bloemen under MIT license (https://xn--2-umb.com/21/muldiv)
      * with further edits by Uniswap Labs also under MIT license.
      */
-    function mulDiv(uint256 x, uint256 y, uint256 denominator) internal pure returns (uint256 result) {
+    function mulDiv(
+        uint256 x,
+        uint256 y,
+        uint256 denominator
+    ) internal pure returns (uint256 result) {
         unchecked {
             // 512-bit multiply [prod1 prod0] = x * y. Compute the product mod 2^256 and mod 2^256 - 1, then use
             // use the Chinese Remainder Theorem to reconstruct the 512 bit result. The result is stored in two 256
@@ -543,14 +596,11 @@ library Math {
 
             // Handle non-overflow cases, 256 by 256 division.
             if (prod1 == 0) {
-                // Solidity will revert if denominator == 0, unlike the div opcode on its own.
-                // The surrounding unchecked block does not change this fact.
-                // See https://docs.soliditylang.org/en/latest/control-structures.html#checked-or-unchecked-arithmetic.
                 return prod0 / denominator;
             }
 
             // Make sure the result is less than 2^256. Also prevents denominator == 0.
-            require(denominator > prod1, "Math: mulDiv overflow");
+            require(denominator > prod1);
 
             ///////////////////////////////////////////////
             // 512 by 256 division.
@@ -612,7 +662,12 @@ library Math {
     /**
      * @notice Calculates x * y / denominator with full precision, following the selected rounding direction.
      */
-    function mulDiv(uint256 x, uint256 y, uint256 denominator, Rounding rounding) internal pure returns (uint256) {
+    function mulDiv(
+        uint256 x,
+        uint256 y,
+        uint256 denominator,
+        Rounding rounding
+    ) internal pure returns (uint256) {
         uint256 result = mulDiv(x, y, denominator);
         if (rounding == Rounding.Up && mulmod(x, y, denominator) > 0) {
             result += 1;
@@ -728,31 +783,31 @@ library Math {
     function log10(uint256 value) internal pure returns (uint256) {
         uint256 result = 0;
         unchecked {
-            if (value >= 10 ** 64) {
-                value /= 10 ** 64;
+            if (value >= 10**64) {
+                value /= 10**64;
                 result += 64;
             }
-            if (value >= 10 ** 32) {
-                value /= 10 ** 32;
+            if (value >= 10**32) {
+                value /= 10**32;
                 result += 32;
             }
-            if (value >= 10 ** 16) {
-                value /= 10 ** 16;
+            if (value >= 10**16) {
+                value /= 10**16;
                 result += 16;
             }
-            if (value >= 10 ** 8) {
-                value /= 10 ** 8;
+            if (value >= 10**8) {
+                value /= 10**8;
                 result += 8;
             }
-            if (value >= 10 ** 4) {
-                value /= 10 ** 4;
+            if (value >= 10**4) {
+                value /= 10**4;
                 result += 4;
             }
-            if (value >= 10 ** 2) {
-                value /= 10 ** 2;
+            if (value >= 10**2) {
+                value /= 10**2;
                 result += 2;
             }
-            if (value >= 10 ** 1) {
+            if (value >= 10**1) {
                 result += 1;
             }
         }
@@ -766,7 +821,7 @@ library Math {
     function log10(uint256 value, Rounding rounding) internal pure returns (uint256) {
         unchecked {
             uint256 result = log10(value);
-            return result + (rounding == Rounding.Up && 10 ** result < value ? 1 : 0);
+            return result + (rounding == Rounding.Up && 10**result < value ? 1 : 0);
         }
     }
 
@@ -803,13 +858,13 @@ library Math {
     }
 
     /**
-     * @dev Return the log in base 256, following the selected rounding direction, of a positive value.
+     * @dev Return the log in base 10, following the selected rounding direction, of a positive value.
      * Returns 0 if given 0.
      */
     function log256(uint256 value, Rounding rounding) internal pure returns (uint256) {
         unchecked {
             uint256 result = log256(value);
-            return result + (rounding == Rounding.Up && 1 << (result << 3) < value ? 1 : 0);
+            return result + (rounding == Rounding.Up && 1 << (result * 8) < value ? 1 : 0);
         }
     }
 }
@@ -817,10 +872,9 @@ library Math {
 // File: @openzeppelin/contracts/utils/Strings.sol
 
 
-// OpenZeppelin Contracts (last updated v4.9.0) (utils/Strings.sol)
+// OpenZeppelin Contracts (last updated v4.8.0) (utils/Strings.sol)
 
 pragma solidity ^0.8.0;
-
 
 
 /**
@@ -856,13 +910,6 @@ library Strings {
     }
 
     /**
-     * @dev Converts a `int256` to its ASCII `string` decimal representation.
-     */
-    function toString(int256 value) internal pure returns (string memory) {
-        return string(abi.encodePacked(value < 0 ? "-" : "", toString(SignedMath.abs(value))));
-    }
-
-    /**
      * @dev Converts a `uint256` to its ASCII `string` hexadecimal representation.
      */
     function toHexString(uint256 value) internal pure returns (string memory) {
@@ -891,13 +938,6 @@ library Strings {
      */
     function toHexString(address addr) internal pure returns (string memory) {
         return toHexString(uint256(uint160(addr)), _ADDRESS_LENGTH);
-    }
-
-    /**
-     * @dev Returns true if the two strings are equal.
-     */
-    function equal(string memory a, string memory b) internal pure returns (bool) {
-        return keccak256(bytes(a)) == keccak256(bytes(b));
     }
 }
 
@@ -1016,7 +1056,7 @@ abstract contract Ownable is Context {
 // File: @openzeppelin/contracts/utils/Address.sol
 
 
-// OpenZeppelin Contracts (last updated v4.9.0) (utils/Address.sol)
+// OpenZeppelin Contracts (last updated v4.8.0) (utils/Address.sol)
 
 pragma solidity ^0.8.1;
 
@@ -1039,10 +1079,6 @@ library Address {
      *  - a contract in construction
      *  - an address where a contract will be created
      *  - an address where a contract lived, but was destroyed
-     *
-     * Furthermore, `isContract` will also return true if the target contract within
-     * the same transaction is already scheduled for destruction by `SELFDESTRUCT`,
-     * which only has an effect at the end of a transaction.
      * ====
      *
      * [IMPORTANT]
@@ -1071,12 +1107,12 @@ library Address {
      * imposed by `transfer`, making them unable to receive funds via
      * `transfer`. {sendValue} removes this limitation.
      *
-     * https://consensys.net/diligence/blog/2019/09/stop-using-soliditys-transfer-now/[Learn more].
+     * https://diligence.consensys.net/posts/2019/09/stop-using-soliditys-transfer-now/[Learn more].
      *
      * IMPORTANT: because control is transferred to `recipient`, care must be
      * taken to not create reentrancy vulnerabilities. Consider using
      * {ReentrancyGuard} or the
-     * https://solidity.readthedocs.io/en/v0.8.0/security-considerations.html#use-the-checks-effects-interactions-pattern[checks-effects-interactions pattern].
+     * https://solidity.readthedocs.io/en/v0.5.11/security-considerations.html#use-the-checks-effects-interactions-pattern[checks-effects-interactions pattern].
      */
     function sendValue(address payable recipient, uint256 amount) internal {
         require(address(this).balance >= amount, "Address: insufficient balance");
@@ -1132,7 +1168,11 @@ library Address {
      *
      * _Available since v3.1._
      */
-    function functionCallWithValue(address target, bytes memory data, uint256 value) internal returns (bytes memory) {
+    function functionCallWithValue(
+        address target,
+        bytes memory data,
+        uint256 value
+    ) internal returns (bytes memory) {
         return functionCallWithValue(target, data, value, "Address: low-level call with value failed");
     }
 
@@ -1352,7 +1392,7 @@ abstract contract ERC165 is IERC165 {
 // File: @openzeppelin/contracts/token/ERC721/IERC721.sol
 
 
-// OpenZeppelin Contracts (last updated v4.9.0) (token/ERC721/IERC721.sol)
+// OpenZeppelin Contracts (last updated v4.8.0) (token/ERC721/IERC721.sol)
 
 pragma solidity ^0.8.0;
 
@@ -1403,7 +1443,12 @@ interface IERC721 is IERC165 {
      *
      * Emits a {Transfer} event.
      */
-    function safeTransferFrom(address from, address to, uint256 tokenId, bytes calldata data) external;
+    function safeTransferFrom(
+        address from,
+        address to,
+        uint256 tokenId,
+        bytes calldata data
+    ) external;
 
     /**
      * @dev Safely transfers `tokenId` token from `from` to `to`, checking first that contract recipients
@@ -1419,7 +1464,11 @@ interface IERC721 is IERC165 {
      *
      * Emits a {Transfer} event.
      */
-    function safeTransferFrom(address from, address to, uint256 tokenId) external;
+    function safeTransferFrom(
+        address from,
+        address to,
+        uint256 tokenId
+    ) external;
 
     /**
      * @dev Transfers `tokenId` token from `from` to `to`.
@@ -1437,7 +1486,11 @@ interface IERC721 is IERC165 {
      *
      * Emits a {Transfer} event.
      */
-    function transferFrom(address from, address to, uint256 tokenId) external;
+    function transferFrom(
+        address from,
+        address to,
+        uint256 tokenId
+    ) external;
 
     /**
      * @dev Gives permission to `to` to transfer `tokenId` token to another account.
@@ -1464,7 +1517,7 @@ interface IERC721 is IERC165 {
      *
      * Emits an {ApprovalForAll} event.
      */
-    function setApprovalForAll(address operator, bool approved) external;
+    function setApprovalForAll(address operator, bool _approved) external;
 
     /**
      * @dev Returns the account approved for `tokenId` token.
@@ -1515,7 +1568,7 @@ interface IERC721Metadata is IERC721 {
 // File: @openzeppelin/contracts/token/ERC721/ERC721.sol
 
 
-// OpenZeppelin Contracts (last updated v4.9.0) (token/ERC721/ERC721.sol)
+// OpenZeppelin Contracts (last updated v4.8.0) (token/ERC721/ERC721.sol)
 
 pragma solidity ^0.8.0;
 
@@ -1662,7 +1715,11 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
     /**
      * @dev See {IERC721-transferFrom}.
      */
-    function transferFrom(address from, address to, uint256 tokenId) public virtual override {
+    function transferFrom(
+        address from,
+        address to,
+        uint256 tokenId
+    ) public virtual override {
         //solhint-disable-next-line max-line-length
         require(_isApprovedOrOwner(_msgSender(), tokenId), "ERC721: caller is not token owner or approved");
 
@@ -1672,14 +1729,23 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
     /**
      * @dev See {IERC721-safeTransferFrom}.
      */
-    function safeTransferFrom(address from, address to, uint256 tokenId) public virtual override {
+    function safeTransferFrom(
+        address from,
+        address to,
+        uint256 tokenId
+    ) public virtual override {
         safeTransferFrom(from, to, tokenId, "");
     }
 
     /**
      * @dev See {IERC721-safeTransferFrom}.
      */
-    function safeTransferFrom(address from, address to, uint256 tokenId, bytes memory data) public virtual override {
+    function safeTransferFrom(
+        address from,
+        address to,
+        uint256 tokenId,
+        bytes memory data
+    ) public virtual override {
         require(_isApprovedOrOwner(_msgSender(), tokenId), "ERC721: caller is not token owner or approved");
         _safeTransfer(from, to, tokenId, data);
     }
@@ -1702,7 +1768,12 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
      *
      * Emits a {Transfer} event.
      */
-    function _safeTransfer(address from, address to, uint256 tokenId, bytes memory data) internal virtual {
+    function _safeTransfer(
+        address from,
+        address to,
+        uint256 tokenId,
+        bytes memory data
+    ) internal virtual {
         _transfer(from, to, tokenId);
         require(_checkOnERC721Received(from, to, tokenId, data), "ERC721: transfer to non ERC721Receiver implementer");
     }
@@ -1756,7 +1827,11 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
      * @dev Same as {xref-ERC721-_safeMint-address-uint256-}[`_safeMint`], with an additional `data` parameter which is
      * forwarded in {IERC721Receiver-onERC721Received} to contract recipients.
      */
-    function _safeMint(address to, uint256 tokenId, bytes memory data) internal virtual {
+    function _safeMint(
+        address to,
+        uint256 tokenId,
+        bytes memory data
+    ) internal virtual {
         _mint(to, tokenId);
         require(
             _checkOnERC721Received(address(0), to, tokenId, data),
@@ -1845,7 +1920,11 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
      *
      * Emits a {Transfer} event.
      */
-    function _transfer(address from, address to, uint256 tokenId) internal virtual {
+    function _transfer(
+        address from,
+        address to,
+        uint256 tokenId
+    ) internal virtual {
         require(ERC721.ownerOf(tokenId) == from, "ERC721: transfer from incorrect owner");
         require(to != address(0), "ERC721: transfer to the zero address");
 
@@ -1888,7 +1967,11 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
      *
      * Emits an {ApprovalForAll} event.
      */
-    function _setApprovalForAll(address owner, address operator, bool approved) internal virtual {
+    function _setApprovalForAll(
+        address owner,
+        address operator,
+        bool approved
+    ) internal virtual {
         require(owner != operator, "ERC721: approve to caller");
         _operatorApprovals[owner][operator] = approved;
         emit ApprovalForAll(owner, operator, approved);
@@ -1949,7 +2032,21 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
      *
      * To learn more about hooks, head to xref:ROOT:extending-contracts.adoc#using-hooks[Using Hooks].
      */
-    function _beforeTokenTransfer(address from, address to, uint256 firstTokenId, uint256 batchSize) internal virtual {}
+    function _beforeTokenTransfer(
+        address from,
+        address to,
+        uint256, /* firstTokenId */
+        uint256 batchSize
+    ) internal virtual {
+        if (batchSize > 1) {
+            if (from != address(0)) {
+                _balances[from] -= batchSize;
+            }
+            if (to != address(0)) {
+                _balances[to] += batchSize;
+            }
+        }
+    }
 
     /**
      * @dev Hook that is called after any token transfer. This includes minting and burning. If {ERC721Consecutive} is
@@ -1965,22 +2062,23 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
      *
      * To learn more about hooks, head to xref:ROOT:extending-contracts.adoc#using-hooks[Using Hooks].
      */
-    function _afterTokenTransfer(address from, address to, uint256 firstTokenId, uint256 batchSize) internal virtual {}
-
-    /**
-     * @dev Unsafe write access to the balances, used by extensions that "mint" tokens using an {ownerOf} override.
-     *
-     * WARNING: Anyone calling this MUST ensure that the balances remain consistent with the ownership. The invariant
-     * being that for any address `a` the value returned by `balanceOf(a)` must be equal to the number of tokens such
-     * that `ownerOf(tokenId)` is `a`.
-     */
-    // solhint-disable-next-line func-name-mixedcase
-    function __unsafe_increaseBalance(address account, uint256 amount) internal {
-        _balances[account] += amount;
-    }
+    function _afterTokenTransfer(
+        address from,
+        address to,
+        uint256 firstTokenId,
+        uint256 batchSize
+    ) internal virtual {}
 }
 
-// File: contracts/FarmCraft.sol
+// File: FarmCraft.sol
+
+
+pragma solidity ^0.8.2;
+
+
+
+
+
 
 
 contract FarmCraft is ERC721, Ownable {
@@ -1995,13 +2093,12 @@ contract FarmCraft is ERC721, Ownable {
     uint256 public totalGoldEarned;
 
     uint256 public constant QUEST_DURATION = 1 minutes;
-    uint256 public constant SEEDS_FOR_GOLD = 5; // Number of crops required to buy 1 GOLD
-    uint256 public constant CROPS_FOR_GOLD = 10; // Number of crops required to buy 1 GOLD
+    uint256 public constant SEEDS_FOR_GOLD = 5; // Number of seeds to purchase with 1 GOLD
+    uint256 public constant CROPS_FOR_GOLD = 10; // Number of crops to sell for 1 GOLD
 
     struct Crop {
         uint256 maturityTime;
         uint256 yield;
-        uint256 rewards;
         uint256 plantedAt;
         bool harvested;
     }
@@ -2022,7 +2119,6 @@ contract FarmCraft is ERC721, Ownable {
     struct CropType {
         uint256 maturityTime;
         uint256 yield;
-        uint256 rewards;
         uint256 seedCost;
     }
 
@@ -2031,6 +2127,7 @@ contract FarmCraft is ERC721, Ownable {
     mapping(uint256 => Farmer) private farmers;
     mapping(uint256 => CropType) private cropTypes;
     mapping(uint256 => EnumerableSet.UintSet) private farmerCrops;
+    mapping(address => bool) private addressMinted;
 
     Counters.Counter private cropTypeCounter;
 
@@ -2077,14 +2174,15 @@ contract FarmCraft is ERC721, Ownable {
         _tokenURIs[tokenId] = tokenURI;
     }
 
-    function _constructTokenURI(uint256 tokenId, Farmer memory farmer) private pure returns (string memory) {
-        return string(
+    function _constructTokenURI(uint256 tokenId, Farmer memory farmer) private view returns (string memory) {
+        string memory baseURI = _baseURI();
+        string memory name = string(abi.encodePacked("Farmer #", uintToStr(tokenId)));
+        string memory description = "FarmCraft Farmer NFTs by Omniv3rse.com.";
+        string memory image = farmer.imageIpfsHash;
+
+        string memory attributes = string(
             abi.encodePacked(
-                '{"name":"Farmer #',
-                uintToStr(tokenId),
-                '","description":"FarmCraft Farmer","image":"',
-                farmer.imageIpfsHash,
-                '","attributes":[{"trait_type":"Experience","value":',
+                '[{"trait_type":"Experience","value":',
                 uintToStr(farmer.experience),
                 '},{"trait_type":"Level","value":',
                 uintToStr(farmer.level),
@@ -2094,9 +2192,29 @@ contract FarmCraft is ERC721, Ownable {
                 uintToStr(farmer.gold),
                 '},{"trait_type":"Crops","value":',
                 uintToStr(farmer.cropsEarned),
-                '}]}' 
+                '}]'
             )
         );
+
+        string memory json = Base64.encode(
+            bytes(
+                string(
+                    abi.encodePacked(
+                        '{"name":"',
+                        name,
+                        '","description":"',
+                        description,
+                        '","image":"',
+                        image,
+                        '","attributes":',
+                        attributes,
+                        '}'
+                    )
+                )
+            )
+        );
+
+        return string(abi.encodePacked(baseURI, json));
     }
 
     /**
@@ -2104,6 +2222,8 @@ contract FarmCraft is ERC721, Ownable {
      * @param imageIpfsHash The IPFS hash of the farmer's image.
      */
     function mintFarmer(string memory imageIpfsHash) external {
+        require(!addressMinted[msg.sender], "Only one farmer per address");
+
         _safeMint(msg.sender, nextTokenId);
         farmers[nextTokenId] = Farmer(
             msg.sender,
@@ -2120,6 +2240,7 @@ contract FarmCraft is ERC721, Ownable {
         _initiateMetadata(nextTokenId);
         nextTokenId++;
         totalFarmers++;
+        addressMinted[msg.sender] = true;
     }
 
     /**
@@ -2185,7 +2306,7 @@ contract FarmCraft is ERC721, Ownable {
         require(farmer.seeds >= cropType.seedCost, "Insufficient SEEDs");
 
         uint256 cropId = totalCrops;
-        crops[cropId] = Crop(cropType.maturityTime, cropType.yield, cropType.rewards, block.timestamp, false);
+        crops[cropId] = Crop(cropType.maturityTime, cropType.yield, block.timestamp, false);
         farmerCrops[farmerId].add(cropId);
         farmer.seeds -= cropType.seedCost;
         totalCrops++;
@@ -2210,10 +2331,8 @@ contract FarmCraft is ERC721, Ownable {
 
         crop.harvested = true;
         farmer.cropsEarned += crop.yield;
-        farmer.gold += crop.rewards;
         totalCropsSold += crop.yield;
-        totalGoldEarned += crop.rewards;
-        farmer.experience += 1; // Increase experience for harvesting a crop
+        farmer.experience += crop.yield; // Increase experience for harvesting a crop
         _initiateMetadata(farmerId);
     }
 
@@ -2233,7 +2352,7 @@ contract FarmCraft is ERC721, Ownable {
         farmer.gold += goldToEarn;
         totalCropsSold += amount;
         totalGoldEarned += goldToEarn;
-        farmer.experience += 1; // Increase experience for selling crops
+        farmer.experience += goldToEarn; // Increase experience for selling crops
         _initiateMetadata(farmerId);
     }
 
@@ -2241,14 +2360,12 @@ contract FarmCraft is ERC721, Ownable {
      * @dev Create a new crop type.
      * @param maturityTime The time it takes for the crop to mature.
      * @param yield The amount of crops yielded when harvesting.
-     * @param rewards The amount of rewards earned when harvesting.
      * @param seedCost The cost in seeds to plant this crop type.
      */
-    function addCropType(uint256 maturityTime, uint256 yield, uint256 rewards, uint256 seedCost) external onlyOwner {
+    function addCropType(uint256 maturityTime, uint256 yield, uint256 seedCost) external onlyOwner {
         CropType storage newCropType = cropTypes[cropTypeCounter.current()];
         newCropType.maturityTime = maturityTime;
         newCropType.yield = yield;
-        newCropType.rewards = rewards;
         newCropType.seedCost = seedCost;
         cropTypeCounter.increment();
     }
@@ -2274,18 +2391,14 @@ contract FarmCraft is ERC721, Ownable {
 
     function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
         require(_exists(tokenId), "ERC721Metadata: URI query for nonexistent token");
-        string memory _tokenURI = _tokenURIs[tokenId];
         string memory baseURI = _baseURI();
         if (bytes(baseURI).length == 0) {
-            return _tokenURI;
+            return "";
         }
-        if (bytes(_tokenURI).length > 0) {
-            return string(abi.encodePacked(baseURI, _tokenURI));
-        }
-        return super.tokenURI(tokenId);
+        return _constructTokenURI(tokenId, farmers[tokenId]);
     }
 
     function _baseURI() internal view virtual override returns (string memory) {
-        return "QmQGgmAv2LybwF3N7EQPHiq3bevku3LEZvHMM1aUH7C1Zh";
+        return "https://gateway.pinata.cloud/ipfs/QmQGgmAv2LybwF3N7EQPHiq3bevku3LEZvHMM1aUH7C1Zh/";
     }
 }
