@@ -51,7 +51,7 @@ const { chains, publicClient, webSocketPublicClient } = configureChains(
     // polygon,
     // optimism,
     // arbitrum,
-    ...(process.env.NEXT_PUBLIC_ENABLE_TESTNETS === 'true' ? [scrollAlpha, mantleTestnet] : []),
+    ...(process.env.NEXT_PUBLIC_ENABLE_TESTNETS === 'true' ? [scrollAlpha] : []),
   ],
   [publicProvider()]
 );
