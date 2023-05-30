@@ -18,8 +18,8 @@ contract FarmCraft is ERC721, Ownable {
     uint256 public totalGoldEarned;
 
     uint256 public constant QUEST_DURATION = 1 minutes;
-    uint256 public constant SEEDS_FOR_GOLD = 5; // Number of seeds required to sell for 1 GOLD
-    uint256 public constant CROPS_FOR_GOLD = 10; // Number of crops required to buy 1 GOLD
+    uint256 public constant SEEDS_FOR_GOLD = 5; // Number of seeds to purchase with 1 GOLD
+    uint256 public constant CROPS_FOR_GOLD = 10; // Number of crops to sell for 1 GOLD
 
     struct Crop {
         uint256 maturityTime;
