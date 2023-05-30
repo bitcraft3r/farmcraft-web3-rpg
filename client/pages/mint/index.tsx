@@ -16,6 +16,8 @@ const Mint = () => {
         hash: data?.hash,
     })
 
+    // TODO: Redirect to `/play` page onSuccess of mint.
+    // BUG: the `/play` page is not being refreshed after minting to setHasFarmer(true).
 
   return (
     <div>
