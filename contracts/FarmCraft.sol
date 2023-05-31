@@ -37,7 +37,6 @@ contract FarmCraft is ERC721, Ownable {
     struct Farmer {
         address owner;
         uint256 experience;
-        uint256 level;
         uint256[] crops;
         uint256 seeds;
         uint256 gold;
@@ -134,8 +133,6 @@ contract FarmCraft is ERC721, Ownable {
             abi.encodePacked(
                 '[{"trait_type":"Experience","value":',
                 uintToStr(farmer.experience),
-                '},{"trait_type":"Level","value":',
-                uintToStr(farmer.level),
                 '},{"trait_type":"Seeds","value":',
                 uintToStr(farmer.seeds),
                 '},{"trait_type":"Gold","value":',
@@ -180,7 +177,6 @@ contract FarmCraft is ERC721, Ownable {
         farmers[nextTokenId] = Farmer(
             msg.sender,
             0,
-            1,
             new uint256[](0),
             0,
             0,
