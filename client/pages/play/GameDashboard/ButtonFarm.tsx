@@ -51,7 +51,8 @@ const ButtonFarm: React.FC<ButtonFarmProps> = ({ farmerTokenId }) => {
   return (
     <>
       <button onClick={startFarming} disabled={isLoadingFarmStart}>Plant Seeds</button>
-      <button onClick={endFarming} disabled={isLoadingFarmEnd}>Harvest Crops</button>
+      <button onClick={endFarming} disabled={true}>Harvest Crops</button>
+      {/* <button onClick={endFarming} disabled={isLoadingFarmEnd}>Harvest Crops</button> */}
     </>
   )
 }
