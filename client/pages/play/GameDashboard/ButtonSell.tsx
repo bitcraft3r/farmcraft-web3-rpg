@@ -2,8 +2,12 @@ import React from 'react'
 import { useContractWrite } from 'wagmi'
 import CONTRACT_ABI from '../../../data/abi.json'
 
-const ButtonSell = () => {
-  const farmerId = 1 // replace with actual farmerId
+interface ButtonSellProps {
+  farmerTokenId: number
+}
+
+const ButtonSell: React.FC<ButtonSellProps> = ({ farmerTokenId }) => {
+  const farmerId = farmerTokenId
 
   const { data, isLoading, isSuccess, write } = useContractWrite({
     // @ts-ignore

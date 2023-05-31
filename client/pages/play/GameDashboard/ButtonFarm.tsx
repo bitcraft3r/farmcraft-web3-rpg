@@ -3,21 +3,18 @@ import { useContractRead, useContractWrite } from 'wagmi'
 import CONTRACT_ABI from '../../../data/abi.json'
 
 // 1. GET connected wallet's address
-// 2. GET tokenId of the wallet's farmer nft - TODO
+// 2. GET tokenId of the wallet's farmer nft
 // 3. GET the cropTypeId that player wants to plant - TODO
 // 3. call startFarming(farmerId, cropTypeId) to start foraging quest
 // 4. GET cropId of the planted crop - TODO
 // 4. call endFarming(farmerId, cropId) to end foraging quest
 
 interface ButtonFarmProps {
-  address: `0x${string}` | undefined
+  farmerTokenId: number
 }
 
-const ButtonFarm: React.FC<ButtonFarmProps> = ({ address }) => {
-
-  // TODO: implement getFarmerTokenIdByAddress() read
-
-  const farmerId = 1 // replace with actual farmerId
+const ButtonFarm: React.FC<ButtonFarmProps> = ({ farmerTokenId }) => {
+  const farmerId = farmerTokenId
   const cropTypeId = 0 // replace with actual cropId
 
   const { data: dataFarmStart, isLoading: isLoadingFarmStart, isSuccess: isSuccessFarmStart, write: writeFarmStart } = useContractWrite({
@@ -28,8 +25,8 @@ const ButtonFarm: React.FC<ButtonFarmProps> = ({ address }) => {
     args: [farmerId, cropTypeId],
   })
 
-  // TODO: GET cropId of the planted crop from dataFarmStart
-  const cropId = 2 // replace with actual cropId
+  // TODO: GET cropId of the planted crop from dataFarmStart / or from DataFarmer[2] which is an array of cropIds which are active.
+  const cropId = 0 // replace with actual cropId
 
   const { data: dataFarmEnd, isLoading: isLoadingFarmEnd, isSuccess: isSuccessFarmEnd, write: writeFarmEnd } = useContractWrite({
     // @ts-ignore
@@ -44,7 +41,7 @@ const ButtonFarm: React.FC<ButtonFarmProps> = ({ address }) => {
     writeFarmStart('plantCrop')
     console.log(`dataStartFarm`, dataFarmStart)
   }
-  
+
   const endFarming = () => {
     // @ts-ignore
     writeFarmEnd('harvestCrop')
@@ -53,8 +50,8 @@ const ButtonFarm: React.FC<ButtonFarmProps> = ({ address }) => {
 
   return (
     <>
-      <button onClick={startFarming}>Plant Seeds</button>
-      <button onClick={endFarming}>Harvest Crops</button>
+      <button onClick={startFarming} disabled={isLoadingFarmStart}>Plant Seeds</button>
+      <button onClick={endFarming} disabled={isLoadingFarmEnd}>Harvest Crops</button>
     </>
   )
 }

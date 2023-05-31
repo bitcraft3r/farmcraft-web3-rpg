@@ -8,7 +8,7 @@ const Mint = () => {
         address: process.env.NEXT_PUBLIC_CONTRACT_ADDRESS,
         abi: CONTRACT_ABI,
         functionName: 'mintFarmer',
-        args: ["https://gateway.pinata.cloud/ipfs/QmQGgmAv2LybwF3N7EQPHiq3bevku3LEZvHMM1aUH7C1Zh"]
+        args: ["QmQGgmAv2LybwF3N7EQPHiq3bevku3LEZvHMM1aUH7C1Zh"]
     })
     const { data, error, isError, write } = useContractWrite(config)
  

@@ -1,27 +1,14 @@
 import React from 'react'
-import { useContractRead, useContractWrite } from 'wagmi'
+import { useContractWrite } from 'wagmi'
 import CONTRACT_ABI from '../../../data/abi.json'
 
-// 1. GET connected wallet's address
-// 2. GET tokenId of the wallet's farmer nft
-// 3. call startForagingQuest(farmerId) to start foraging quest
-// 4. call endForagingQuest(farmerId) to end foraging quest
-
 interface ButtonQuestProps {
-  address: `0x${string}` | undefined
+  farmerTokenId: number
 }
 
-const ButtonQuest: React.FC<ButtonQuestProps> = ({ address }) => {
+const ButtonQuest: React.FC<ButtonQuestProps> = ({ farmerTokenId }) => {
+  const farmerId = farmerTokenId
 
-  // const { data: dataRead, isError, isLoading: isLoadingRead } = useContractRead({
-  //   address: address,
-  //   abi: CONTRACT_ABI,
-  //   functionName: 'getFarmerTokenIdByAddress', // TODO: Add new getter fn in .sol contract: getFamerTokenIdByAddress()
-  // })
-
-  const farmerId = 1 // replace with actual farmerId
-
-  // 
   const { data: dataQuestStart, isLoading: isLoadingQuestStart, isSuccess: isSuccessQuestStart, write: writeQuestStart } = useContractWrite({
     // @ts-ignore
     address: process.env.NEXT_PUBLIC_CONTRACT_ADDRESS,
@@ -50,8 +37,8 @@ const ButtonQuest: React.FC<ButtonQuestProps> = ({ address }) => {
 
   return (
     <>
-      <button onClick={startForagingQuest}>Forage</button>
-      <button onClick={endForagingQuest}>End Quest</button>
+      <button onClick={startForagingQuest} disabled={isLoadingQuestStart}>Forage</button>
+      <button onClick={endForagingQuest} disabled={isLoadingQuestEnd}>End Quest</button>
     </>
   )
 }

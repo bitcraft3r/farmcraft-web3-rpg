@@ -1,38 +1,15 @@
-import React, { useEffect, useState } from 'react'
-import { useContractRead } from 'wagmi'
-import CONTRACT_ABI from '../../../data/abi.json'
+import React from 'react'
 
 interface ContainerStatsProps {
-  address: `0x${string}` | undefined
+  experience: number
+  status: boolean
 }
 
-const ContainerStats: React.FC<ContainerStatsProps> = ({ address }) => {
-  const farmerId = 1 // replace with actual farmerId
-
-  const { data, isError, isLoading } = useContractRead({
-    // @ts-ignore
-    address: process.env.NEXT_PUBLIC_CONTRACT_ADDRESS,
-    abi: CONTRACT_ABI,
-    functionName: 'getFarmer',
-    args: [farmerId],
-  })
-
-  const [farmerData, setFarmerData] = useState([])
-
-  useEffect(() => {
-    if (data) {
-      console.log(`data in Stats`, data)
-      // @ts-ignore
-      setFarmerData(data)
-    }
-
-  }, [])
-
+const ContainerStats: React.FC<ContainerStatsProps> = ({ experience, status }) => {
   return (
     <div style={{ padding: "0.5rem", textAlign: "center" }}>
-        <p>Level: {Number(farmerData[2])}</p>
-        <p>Experience: {Number(farmerData[1])}</p>
-        <p>Status: {farmerData[8] ? "Questing" : "Ready"}</p>
+        <p>Experience: {experience}</p>
+        <p>Status: {status ? "Questing" : "Ready"}</p>
     </div>
   )
 }

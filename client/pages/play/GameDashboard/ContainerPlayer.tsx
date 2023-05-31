@@ -1,36 +1,16 @@
-import React, { useEffect, useState } from 'react'
-import { useContractRead } from 'wagmi'
-import CONTRACT_ABI from '../../../data/abi.json'
+import Image from 'next/image'
+import React from 'react'
 
 interface ContainerPlayerProps {
   address: `0x${string}` | undefined
+  imgIpfsHash: string
 }
 
-const ContainerPlayer: React.FC<ContainerPlayerProps> = ({ address }) => {
-  const farmerId = 1 // replace with actual farmerId
-
-  const { data, isError, isLoading } = useContractRead({
-    // @ts-ignore
-    address: process.env.NEXT_PUBLIC_CONTRACT_ADDRESS,
-    abi: CONTRACT_ABI,
-    functionName: 'getFarmer',
-    args: [farmerId],
-  })
-
-  const [farmerData, setFarmerData] = useState([])
-
-  useEffect(() => {
-    if (data) {
-      console.log(`data in Player`, data)
-      // @ts-ignore
-      setFarmerData(data)
-    }
-
-  }, [])
+const ContainerPlayer: React.FC<ContainerPlayerProps> = ({ address, imgIpfsHash }) => {
 
   return (
     <div style={{ padding: "0.5rem", textAlign: "center" }}>
-        <p>AVATAR</p>
+        <Image src={`https://gateway.pinata.cloud/ipfs/${imgIpfsHash}`} alt="FarmCraft farmer avatar" width="128" height="128" />
         <p>{address && address.substring(0, 6)}...{address &&address.slice(-4)}</p>
     </div>
   )
