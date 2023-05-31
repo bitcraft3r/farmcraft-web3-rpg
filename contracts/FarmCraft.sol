@@ -9,7 +9,6 @@ import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/utils/Base64.sol";
 
 // TODO: Add new fn harvestAllReadyCrops().
-// TODO: Fix crops[] in Farmer not correctly showing active crops. I want to get all crops of the farmer and know which has been harvested, which are active (planted), and which of the active ones can be harvested.
 // TODO: Add other getter functions & events where necessary to help keep track of state of the farmer
 // TODO: Add multiplayer mini-game
 
@@ -85,7 +84,14 @@ contract FarmCraft is ERC721, Ownable {
      * @return The Farmer struct representing the farmer information.
      */
     function getFarmer(uint256 farmerId) external view returns (Farmer memory) {
-        return farmers[farmerId];
+        Farmer memory farmer = farmers[farmerId];
+        EnumerableSet.UintSet storage farmerCropIds = farmerCrops[farmerId];
+        uint256[] memory farmerCropsArr = new uint256[](farmerCropIds.length());
+        for (uint256 i = 0; i < farmerCropIds.length(); i++) {
+            farmerCropsArr[i] = farmerCropIds.at(i);
+        }
+        farmer.crops = farmerCropsArr;
+        return farmer;
     }
 
     /**
@@ -96,6 +102,8 @@ contract FarmCraft is ERC721, Ownable {
     function getCropType(uint256 cropTypeId) external view returns (CropType memory) {
         return cropTypes[cropTypeId];
     }
+
+
 
     /**
      * @dev Get the token ID of the farmer by address.
@@ -278,6 +286,7 @@ contract FarmCraft is ERC721, Ownable {
         farmer.cropsEarned += crop.yield;
         totalCropsSold += crop.yield;
         farmer.experience += crop.yield; // Increase experience for harvesting a crop
+        farmerCrops[farmerId].remove(cropId); // Remove the harvested crop ID from the farmer's crops array
         _initiateMetadata(farmerId);
     }
 
