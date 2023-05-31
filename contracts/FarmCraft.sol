@@ -8,10 +8,6 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/utils/Base64.sol";
 
-// TODO: Add new fn harvestAllReadyCrops().
-// TODO: Add other getter functions & events where necessary to help keep track of state of the farmer
-// TODO: Add multiplayer mini-game
-
 contract FarmCraft is ERC721, Ownable {
     using EnumerableSet for EnumerableSet.UintSet;
     using Counters for Counters.Counter;
@@ -101,8 +97,6 @@ contract FarmCraft is ERC721, Ownable {
     function getCropType(uint256 cropTypeId) external view returns (CropType memory) {
         return cropTypes[cropTypeId];
     }
-
-
 
     /**
      * @dev Get the token ID of the farmer by address.
@@ -289,18 +283,18 @@ contract FarmCraft is ERC721, Ownable {
     /**
      * @dev Sell crops for GOLD.
      * @param farmerId The ID of the farmer selling crops.
-     * @param amount The amount of crops to sell.
+     * @param amountOfCrops The amount of crops to sell.
      */
-    function sellCrops(uint256 farmerId, uint256 amount) external {
+    function sellCrops(uint256 farmerId, uint256 amountOfCrops) external {
         require(ownerOf(farmerId) == msg.sender, "Only farmer owner can sell crops");
-        require(farmers[farmerId].cropsEarned >= amount, "Insufficient crops to sell");
+        require(farmers[farmerId].cropsEarned >= amountOfCrops, "Insufficient crops to sell");
 
         Farmer storage farmer = farmers[farmerId];
-        uint256 goldToEarn = amount / CROPS_FOR_GOLD; // Sell 10 cropsEarned for 1 GOLD
+        uint256 goldToEarn = amountOfCrops / CROPS_FOR_GOLD; // Sell 10 cropsEarned for 1 GOLD
 
-        farmer.cropsEarned -= amount;
+        farmer.cropsEarned -= amountOfCrops;
         farmer.gold += goldToEarn;
-        totalCropsSold += amount;
+        totalCropsSold += amountOfCrops;
         totalGoldEarned += goldToEarn;
         farmer.experience += goldToEarn; // Increase experience for selling crops
         _initiateMetadata(farmerId);

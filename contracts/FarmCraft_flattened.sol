@@ -2106,7 +2106,6 @@ contract FarmCraft is ERC721, Ownable {
     struct Farmer {
         address owner;
         uint256 experience;
-        uint256 level;
         uint256[] crops;
         uint256 seeds;
         uint256 gold;
@@ -2128,6 +2127,7 @@ contract FarmCraft is ERC721, Ownable {
     mapping(uint256 => CropType) private cropTypes;
     mapping(uint256 => EnumerableSet.UintSet) private farmerCrops;
     mapping(address => bool) private addressMinted;
+    mapping(address => uint256) private farmerTokenIds;
 
     Counters.Counter private cropTypeCounter;
 
@@ -2152,7 +2152,14 @@ contract FarmCraft is ERC721, Ownable {
      * @return The Farmer struct representing the farmer information.
      */
     function getFarmer(uint256 farmerId) external view returns (Farmer memory) {
-        return farmers[farmerId];
+        Farmer memory farmer = farmers[farmerId];
+        EnumerableSet.UintSet storage farmerCropIds = farmerCrops[farmerId];
+        uint256[] memory farmerCropsArr = new uint256[](farmerCropIds.length());
+        for (uint256 i = 0; i < farmerCropIds.length(); i++) {
+            farmerCropsArr[i] = farmerCropIds.at(i);
+        }
+        farmer.crops = farmerCropsArr;
+        return farmer;
     }
 
     /**
@@ -2164,6 +2171,15 @@ contract FarmCraft is ERC721, Ownable {
         return cropTypes[cropTypeId];
     }
 
+    /**
+     * @dev Get the token ID of the farmer by address.
+     * @param farmerAddress The address of the farmer.
+     * @return The token ID of the farmer.
+     */
+    function getFarmerTokenIdByAddress(address farmerAddress) external view returns (uint256) {
+        return farmerTokenIds[farmerAddress];
+    }
+    
     function _initiateMetadata(uint256 farmerId) private {
         Farmer storage farmer = farmers[farmerId];
         _setTokenURI(farmerId, _constructTokenURI(farmerId, farmer));
@@ -2174,18 +2190,16 @@ contract FarmCraft is ERC721, Ownable {
         _tokenURIs[tokenId] = tokenURI;
     }
 
-    function _constructTokenURI(uint256 tokenId, Farmer memory farmer) private view returns (string memory) {
-        string memory baseURI = _baseURI();
+    function _constructTokenURI(uint256 tokenId, Farmer memory farmer) private pure returns (string memory) {
+        // string memory baseURI = _baseURI();
         string memory name = string(abi.encodePacked("Farmer #", uintToStr(tokenId)));
         string memory description = "FarmCraft Farmer NFTs by Omniv3rse.com.";
-        string memory image = farmer.imageIpfsHash;
+        string memory image = string(abi.encodePacked("https://gateway.pinata.cloud/ipfs/", farmer.imageIpfsHash));
 
         string memory attributes = string(
             abi.encodePacked(
                 '[{"trait_type":"Experience","value":',
                 uintToStr(farmer.experience),
-                '},{"trait_type":"Level","value":',
-                uintToStr(farmer.level),
                 '},{"trait_type":"Seeds","value":',
                 uintToStr(farmer.seeds),
                 '},{"trait_type":"Gold","value":',
@@ -2214,7 +2228,8 @@ contract FarmCraft is ERC721, Ownable {
             )
         );
 
-        return string(abi.encodePacked(baseURI, json));
+        // return string(abi.encodePacked(baseURI, json));
+        return string(abi.encodePacked('data:application/json;base64,', json));
     }
 
     /**
@@ -2225,10 +2240,10 @@ contract FarmCraft is ERC721, Ownable {
         require(!addressMinted[msg.sender], "Only one farmer per address");
 
         _safeMint(msg.sender, nextTokenId);
+        uint256 farmerId = nextTokenId;
         farmers[nextTokenId] = Farmer(
             msg.sender,
             0,
-            1,
             new uint256[](0),
             0,
             0,
@@ -2238,6 +2253,7 @@ contract FarmCraft is ERC721, Ownable {
             imageIpfsHash
         );
         _initiateMetadata(nextTokenId);
+        farmerTokenIds[msg.sender] = farmerId;
         nextTokenId++;
         totalFarmers++;
         addressMinted[msg.sender] = true;
@@ -2333,24 +2349,25 @@ contract FarmCraft is ERC721, Ownable {
         farmer.cropsEarned += crop.yield;
         totalCropsSold += crop.yield;
         farmer.experience += crop.yield; // Increase experience for harvesting a crop
+        farmerCrops[farmerId].remove(cropId); // Remove the harvested crop ID from the farmer's crops array
         _initiateMetadata(farmerId);
     }
 
     /**
      * @dev Sell crops for GOLD.
      * @param farmerId The ID of the farmer selling crops.
-     * @param amount The amount of crops to sell.
+     * @param amountOfCrops The amount of crops to sell.
      */
-    function sellCrops(uint256 farmerId, uint256 amount) external {
+    function sellCrops(uint256 farmerId, uint256 amountOfCrops) external {
         require(ownerOf(farmerId) == msg.sender, "Only farmer owner can sell crops");
-        require(farmers[farmerId].cropsEarned >= amount, "Insufficient crops to sell");
+        require(farmers[farmerId].cropsEarned >= amountOfCrops, "Insufficient crops to sell");
 
         Farmer storage farmer = farmers[farmerId];
-        uint256 goldToEarn = amount / CROPS_FOR_GOLD; // Sell 10 cropsEarned for 1 GOLD
+        uint256 goldToEarn = amountOfCrops / CROPS_FOR_GOLD; // Sell 10 cropsEarned for 1 GOLD
 
-        farmer.cropsEarned -= amount;
+        farmer.cropsEarned -= amountOfCrops;
         farmer.gold += goldToEarn;
-        totalCropsSold += amount;
+        totalCropsSold += amountOfCrops;
         totalGoldEarned += goldToEarn;
         farmer.experience += goldToEarn; // Increase experience for selling crops
         _initiateMetadata(farmerId);
@@ -2399,6 +2416,6 @@ contract FarmCraft is ERC721, Ownable {
     }
 
     function _baseURI() internal view virtual override returns (string memory) {
-        return "https://gateway.pinata.cloud/ipfs/QmQGgmAv2LybwF3N7EQPHiq3bevku3LEZvHMM1aUH7C1Zh/";
+        return "https://gateway.pinata.cloud/ipfs/";
     }
 }
