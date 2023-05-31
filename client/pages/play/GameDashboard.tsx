@@ -38,13 +38,13 @@ const GameDashboard: React.FC<GameDashboardProps> = ({ address }) => {
 
   useEffect(() => {
     if (dataTokenId) {
-      console.log(`dataTokenId in GameDashboard`, dataTokenId)
+      // console.log(`dataTokenId in GameDashboard`, dataTokenId)
       // @ts-ignore
       setFarmerTokenId(dataTokenId)
     }
 
     if (dataFarmer) {
-      console.log(`dataFarmer in GameDashboard`, dataFarmer)
+      // console.log(`dataFarmer in GameDashboard`, dataFarmer)
       // @ts-ignore
       setFarmerData(dataFarmer)
     }
@@ -64,7 +64,7 @@ const GameDashboard: React.FC<GameDashboardProps> = ({ address }) => {
 
             {/* Actions */}
             <div style={{ position: "absolute", top: "60%", left: "40%", transform: "translate(-60%, -40%)" }}>
-              <ButtonFarm farmerTokenId={Number(farmerTokenId)} />
+              <ButtonFarm farmerTokenId={Number(farmerTokenId)} activeCrops={farmerData[2]} />
             </div>
             <div style={{ position: "absolute", top: "55%", left: "80%", transform: "translate(-55%, -80%)" }}>
               <ButtonQuest farmerTokenId={Number(farmerTokenId)} />

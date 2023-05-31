@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { useContractRead, useContractWrite } from 'wagmi'
 import CONTRACT_ABI from '../../../data/abi.json'
 
@@ -11,11 +11,20 @@ import CONTRACT_ABI from '../../../data/abi.json'
 
 interface ButtonFarmProps {
   farmerTokenId: number
+  activeCrops: number[]
 }
 
-const ButtonFarm: React.FC<ButtonFarmProps> = ({ farmerTokenId }) => {
+const ButtonFarm: React.FC<ButtonFarmProps> = ({ farmerTokenId, activeCrops }) => {
   const farmerId = farmerTokenId
   const cropTypeId = 0 // replace with actual cropId
+  const [cropIds, setCropIds] = useState<number[]>([]);
+
+  useEffect(() => {
+    if (activeCrops) {
+      console.log(`activeCrops in ButtonFarm:`, activeCrops)
+      setCropIds(activeCrops);
+    }
+  }, [activeCrops]);
 
   const { data: dataFarmStart, isLoading: isLoadingFarmStart, isSuccess: isSuccessFarmStart, write: writeFarmStart } = useContractWrite({
     // @ts-ignore
@@ -25,34 +34,31 @@ const ButtonFarm: React.FC<ButtonFarmProps> = ({ farmerTokenId }) => {
     args: [farmerId, cropTypeId],
   })
 
-  // TODO: GET cropId of the planted crop from dataFarmStart / or from DataFarmer[2] which is an array of cropIds which are active.
-  const cropId = 0 // replace with actual cropId
-
   const { data: dataFarmEnd, isLoading: isLoadingFarmEnd, isSuccess: isSuccessFarmEnd, write: writeFarmEnd } = useContractWrite({
     // @ts-ignore
     address: process.env.NEXT_PUBLIC_CONTRACT_ADDRESS,
     abi: CONTRACT_ABI,
     functionName: 'harvestCrop',
-    args: [farmerId, cropId],
+    args: [farmerId, Number(cropIds[0])],
   })
 
   const startFarming = () => {
     // @ts-ignore
     writeFarmStart('plantCrop')
-    console.log(`dataStartFarm`, dataFarmStart)
   }
 
   const endFarming = () => {
+    const cropId = Number(activeCrops[0]); // Get the first cropId from the array
+    console.log(`harvesting cropId: ${cropId}`)
     // @ts-ignore
-    writeFarmEnd('harvestCrop')
-    console.log(`dataStartFarm`, dataFarmEnd)
+    writeFarmEnd('harvestCrop', cropId) // how to pass argument of cropId into the writeFarmEnd function?
+    setCropIds((prevCropIds) => prevCropIds.slice(1)); // Remove the harvested cropId from the array
   }
 
   return (
     <>
       <button onClick={startFarming} disabled={isLoadingFarmStart}>Plant Seeds</button>
-      <button onClick={endFarming} disabled={true}>Harvest Crops</button>
-      {/* <button onClick={endFarming} disabled={isLoadingFarmEnd}>Harvest Crops</button> */}
+      <button onClick={endFarming} disabled={cropIds.length === 0 || isLoadingFarmEnd}>Harvest Crops</button>
     </>
   )
 }
