@@ -8,7 +8,6 @@ import ButtonQuest from './GameDashboard/ButtonQuest'
 import ButtonSell from './GameDashboard/ButtonSell'
 import ButtonBuy from './GameDashboard/ButtonBuy'
 import ContainerPlayer from './GameDashboard/ContainerPlayer'
-import ContainerStats from './GameDashboard/ContainerStats'
 import ContainerResources from './GameDashboard/ContainerResources'
 
 interface GameDashboardProps {
@@ -78,18 +77,13 @@ const GameDashboard: React.FC<GameDashboardProps> = ({ address }) => {
 
           </div>
 
-          {/* Player */}
-          <div style={{ width: "200px", height: "100%", border: "1px solid gray" }}>
-            <ContainerPlayer address={address} imgIpfsHash={farmerData[8]} />
-          </div>
-
-          {/* Attributes */}
-          <div style={{ width: "200px", height: "100%", border: "1px solid gray" }}>
-            <ContainerStats experience={Number(farmerData[1])} status={farmerData[7]} />
+          {/* Player & Attributes */}
+          <div style={{ width: "200px", height: "100%", border: "1px solid #79673e" }}>
+            <ContainerPlayer address={address} imgIpfsHash={farmerData[8]} experience={Number(farmerData[1])} status={farmerData[7]} />
           </div>
 
           {/* Resources */}
-          <div style={{ position: "absolute", right: "10%", top: "15%", width: "150px", height: "150px", border: "1px solid gray" }}>
+          <div style={{ position: "absolute", right: "10%", top: "15%", width: "150px", height: "150px", border: "1px solid #79673e" }}>
             <ContainerResources seeds={Number(farmerData[3])} gold={Number(farmerData[4])} crops={Number(farmerData[5])} />
           </div>
         </>
