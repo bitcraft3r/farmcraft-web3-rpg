@@ -2112,12 +2112,19 @@ contract FarmCraft is ERC721, Ownable {
         bool questActive;
         string imageIpfsHash;
         string name;
+        uint256 racesWon;
     }
 
     struct CropType {
         uint256 maturityTime;
         uint256 yield;
         uint256 seedCost;
+    }
+
+    struct TractorRace {
+        uint256 farmerId; // The ID of the farmer participating in the race
+        uint256 wager; // The amount of GOLD wagered in the race
+        bool active; // Flag indicating if the race is active
     }
 
     mapping(uint256 => string) private _tokenURIs;
@@ -2129,12 +2136,16 @@ contract FarmCraft is ERC721, Ownable {
     mapping(address => uint256) private farmerTokenIds;
 
     Counters.Counter private cropTypeCounter;
+    TractorRace public currentRace;
 
     constructor() ERC721("FarmCraft", "FARMER") {
         nextTokenId = 1;
     }
 
-    // Getter functions for the mappings
+    modifier noActiveRace() {
+        require(!currentRace.active, "There is already an active race");
+        _;
+    }
 
     /**
      * @dev Get information about a specific crop.
@@ -2207,6 +2218,8 @@ contract FarmCraft is ERC721, Ownable {
                 uintToStr(farmer.gold),
                 '},{"trait_type":"Crops","value":',
                 uintToStr(farmer.cropsEarned),
+                '},{"trait_type":"Wins","value":',
+                uintToStr(farmer.racesWon),
                 '}]'
             )
         );
@@ -2252,7 +2265,8 @@ contract FarmCraft is ERC721, Ownable {
             0,
             false,
             imageIpfsHash,
-            playerName
+            playerName,
+            0
         );
         _initiateMetadata(nextTokenId);
         farmerTokenIds[msg.sender] = farmerId;
@@ -2380,6 +2394,55 @@ contract FarmCraft is ERC721, Ownable {
         totalGoldEarned += goldToEarn;
         farmer.experience += goldToEarn; // Increase experience for selling crops
         _initiateMetadata(farmerId);
+    }
+
+     function enterArena(uint256 farmerId, uint256 wager) external noActiveRace {
+        require(ownerOf(farmerId) == msg.sender, "Only farmer owner can enter the Arena");
+        require(wager > 0, "Wager must be greater than zero");
+        require(farmers[farmerId].gold >= wager, "Insufficient gold"); // Check that player has enough gold
+        farmers[farmerId].gold -= wager; // Deduct the gold equal to the wager amount
+
+        currentRace = TractorRace(farmerId, wager, true);
+    }
+
+    function challengePlayer(uint256 challengerId) external {
+        require(ownerOf(challengerId) == msg.sender, "Only farmer owner can challenge the player");
+
+        TractorRace memory race = currentRace;
+        require(race.active, "There is no active race");
+
+        require(farmers[challengerId].gold >= race.wager, "Insufficient gold"); // Check that player has enough gold
+        farmers[challengerId].gold -= race.wager; // Deduct the gold equal to the wager amount
+
+        uint256 raceWinner;
+        uint256 experienceDiff = farmers[race.farmerId].experience - farmers[challengerId].experience;
+        uint256 randomLuck = experienceDiff % 4; // Generate a random number between 0 and 3
+
+        if (randomLuck > 0) {
+            // 75% of the time, the higher experienced farmer wins
+            if (experienceDiff >= 0) {
+                raceWinner = race.farmerId;
+            } else {
+                raceWinner = challengerId;
+            }
+        } else {
+            // 25% of the time, the lower experienced farmer wins
+            if (experienceDiff > 0) {
+                raceWinner = challengerId;
+            } else {
+                raceWinner = race.farmerId;
+            }
+        }
+
+        uint256 totalWager = race.wager * 2;
+        farmers[raceWinner].gold += totalWager;
+        farmers[raceWinner].racesWon += 1;
+        totalGoldEarned += totalWager;
+
+        currentRace.active = false;
+
+        _initiateMetadata(race.farmerId);
+        _initiateMetadata(challengerId);
     }
 
     /**
