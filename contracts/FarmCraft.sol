@@ -8,6 +8,11 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/utils/Base64.sol";
 
+// TODO: ChallengeRace is failing
+// TODO: ActiveCrop not preventing me from questing / other actions --> remove farming active crops unharvested as blocker for other actions
+// TODO: Change questActive boolean to integer and rename more relevant to track status i.e. 0=idle, 1=quest, 2=farm, 3=race.
+// TODO: add events, e.g. someone entered the race and waiting for challenger.
+
 contract FarmCraft is ERC721, Ownable {
     using EnumerableSet for EnumerableSet.UintSet;
     using Counters for Counters.Counter;
