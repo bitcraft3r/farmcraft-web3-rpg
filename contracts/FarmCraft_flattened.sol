@@ -2283,6 +2283,7 @@ contract FarmCraft is ERC721, Ownable {
     function buySeeds(uint256 farmerId, uint256 amountGold) external {
         require(ownerOf(farmerId) == msg.sender, "Only farmer owner can buy seeds");
         require(!farmers[farmerId].questActive, "Currently on a quest");
+        require(currentRace.farmerId != farmerId, "Currently waiting to race");
         require(farmers[farmerId].crops.length == 0, "Currently have unharvested crops");
 
         Farmer storage farmer = farmers[farmerId];
@@ -2304,6 +2305,7 @@ contract FarmCraft is ERC721, Ownable {
         require(ownerOf(farmerId) == msg.sender, "Only farmer owner can start the quest");
         require(!farmers[farmerId].questActive, "Quest is already active");
         require(farmers[farmerId].crops.length == 0, "Currently have unharvested crops");
+        require(currentRace.farmerId != farmerId, "Currently waiting to race");
 
         farmers[farmerId].questActive = true;
         farmers[farmerId].questEndTime = block.timestamp + QUEST_DURATION;
@@ -2336,6 +2338,7 @@ contract FarmCraft is ERC721, Ownable {
         require(ownerOf(farmerId) == msg.sender, "Only farmer owner can plant crops");
         require(cropTypeId < cropTypeCounter.current(), "Invalid crop type ID");
         require(!farmers[farmerId].questActive, "Currently on a quest");
+        require(currentRace.farmerId != farmerId, "Currently waiting to race");
 
         Farmer storage farmer = farmers[farmerId];
         CropType storage cropType = cropTypes[cropTypeId];
@@ -2359,6 +2362,7 @@ contract FarmCraft is ERC721, Ownable {
         require(ownerOf(farmerId) == msg.sender, "Only farmer owner can harvest crops");
         require(cropId < totalCrops, "Invalid crop ID");
         require(!farmers[farmerId].questActive, "Currently on a quest");
+        require(currentRace.farmerId != farmerId, "Currently waiting to race");
         require(!crops[cropId].harvested, "Crop has already been harvested");
 
         Farmer storage farmer = farmers[farmerId];
@@ -2383,6 +2387,7 @@ contract FarmCraft is ERC721, Ownable {
         require(ownerOf(farmerId) == msg.sender, "Only farmer owner can sell crops");
         require(farmers[farmerId].cropsEarned >= amountCrops, "Insufficient crops to sell");
         require(!farmers[farmerId].questActive, "Currently on a quest");
+        require(currentRace.farmerId != farmerId, "Currently waiting to race");
         require(farmers[farmerId].crops.length == 0, "Currently have unharvested crops");
 
         Farmer storage farmer = farmers[farmerId];
@@ -2396,7 +2401,14 @@ contract FarmCraft is ERC721, Ownable {
         _initiateMetadata(farmerId);
     }
 
-     function enterArena(uint256 farmerId, uint256 wager) external noActiveRace {
+    /**
+     * @dev Enter a farmer into a tractor race by placing a wager.
+     * @param farmerId The ID of the farmer entering the race.
+     * @param wager The amount of gold wagered on the race.
+     */
+    function enterRace(uint256 farmerId, uint256 wager) external noActiveRace {
+        require(!farmers[farmerId].questActive, "Currently on a quest");
+        require(farmers[farmerId].crops.length == 0, "Currently have unharvested crops");
         require(ownerOf(farmerId) == msg.sender, "Only farmer owner can enter the Arena");
         require(wager > 0, "Wager must be greater than zero");
         require(farmers[farmerId].gold >= wager, "Insufficient gold"); // Check that player has enough gold
@@ -2405,7 +2417,26 @@ contract FarmCraft is ERC721, Ownable {
         currentRace = TractorRace(farmerId, wager, true);
     }
 
+    /**
+     * @dev Leave the current tractor race and return the wagered gold to the farmer.
+     */
+    function leaveRace() external {
+        require(currentRace.active, "There is no active race");
+        require(ownerOf(currentRace.farmerId) == msg.sender, "Only farmer owner can leave the Race");
+
+        Farmer storage farmer = farmers[currentRace.farmerId];
+        farmer.gold += currentRace.wager; // Return the wagered gold to the farmer
+
+        currentRace = TractorRace(0, 0, false); // Deactivate the current race
+    }
+
+    /**
+     * @dev Challenge another player in the current tractor race.
+     * @param challengerId The ID of the farmer challenging the player.
+     */
     function challengePlayer(uint256 challengerId) external {
+        require(!farmers[challengerId].questActive, "Currently on a quest");
+        require(farmers[challengerId].crops.length == 0, "Currently have unharvested crops");
         require(ownerOf(challengerId) == msg.sender, "Only farmer owner can challenge the player");
 
         TractorRace memory race = currentRace;
@@ -2439,7 +2470,7 @@ contract FarmCraft is ERC721, Ownable {
         farmers[raceWinner].racesWon += 1;
         totalGoldEarned += totalWager;
 
-        currentRace.active = false;
+        currentRace = TractorRace(0, 0, false);
 
         _initiateMetadata(race.farmerId);
         _initiateMetadata(challengerId);
