@@ -2111,6 +2111,7 @@ contract FarmCraft is ERC721, Ownable {
         uint256 questEndTime;
         bool questActive;
         string imageIpfsHash;
+        string name;
     }
 
     struct CropType {
@@ -2196,7 +2197,9 @@ contract FarmCraft is ERC721, Ownable {
 
         string memory attributes = string(
             abi.encodePacked(
-                '[{"trait_type":"Experience","value":',
+                '[{"trait_type":"Name","value":',
+                farmer.name,
+                '},{"trait_type":"Experience","value":',
                 uintToStr(farmer.experience),
                 '},{"trait_type":"Seeds","value":',
                 uintToStr(farmer.seeds),
@@ -2234,7 +2237,7 @@ contract FarmCraft is ERC721, Ownable {
      * @dev Mint a new farmer NFT.
      * @param imageIpfsHash The IPFS hash of the farmer's image.
      */
-    function mintFarmer(string memory imageIpfsHash) external {
+    function mintFarmer(string memory imageIpfsHash, string memory playerName) external {
         require(!addressMinted[msg.sender], "Only one farmer per address");
 
         _safeMint(msg.sender, nextTokenId);
@@ -2248,7 +2251,8 @@ contract FarmCraft is ERC721, Ownable {
             0,
             0,
             false,
-            imageIpfsHash
+            imageIpfsHash,
+            playerName
         );
         _initiateMetadata(nextTokenId);
         farmerTokenIds[msg.sender] = farmerId;
@@ -2265,6 +2269,7 @@ contract FarmCraft is ERC721, Ownable {
     function buySeeds(uint256 farmerId, uint256 amountGold) external {
         require(ownerOf(farmerId) == msg.sender, "Only farmer owner can buy seeds");
         require(!farmers[farmerId].questActive, "Currently on a quest");
+        require(farmers[farmerId].crops.length == 0, "Currently have unharvested crops");
 
         Farmer storage farmer = farmers[farmerId];
         require(farmer.gold >= amountGold, "Insufficient GOLD");
@@ -2284,6 +2289,7 @@ contract FarmCraft is ERC721, Ownable {
     function startForagingQuest(uint256 farmerId) external {
         require(ownerOf(farmerId) == msg.sender, "Only farmer owner can start the quest");
         require(!farmers[farmerId].questActive, "Quest is already active");
+        require(farmers[farmerId].crops.length == 0, "Currently have unharvested crops");
 
         farmers[farmerId].questActive = true;
         farmers[farmerId].questEndTime = block.timestamp + QUEST_DURATION;
@@ -2363,6 +2369,7 @@ contract FarmCraft is ERC721, Ownable {
         require(ownerOf(farmerId) == msg.sender, "Only farmer owner can sell crops");
         require(farmers[farmerId].cropsEarned >= amountCrops, "Insufficient crops to sell");
         require(!farmers[farmerId].questActive, "Currently on a quest");
+        require(farmers[farmerId].crops.length == 0, "Currently have unharvested crops");
 
         Farmer storage farmer = farmers[farmerId];
         uint256 goldToEarn = amountCrops / 5; // Sell 5 cropsEarned for 1 GOLD
