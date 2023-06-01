@@ -1,6 +1,7 @@
 import React from 'react'
 import { useContractWrite } from 'wagmi'
 import CONTRACT_ABI from '../../../data/abi.json'
+import { Button } from '../../../components/ui/button'
 
 interface ButtonQuestProps {
   farmerTokenId: number
@@ -37,8 +38,8 @@ const ButtonQuest: React.FC<ButtonQuestProps> = ({ farmerTokenId }) => {
 
   return (
     <>
-      <button onClick={startForagingQuest} disabled={isLoadingQuestStart}>Forage</button>
-      <button onClick={endForagingQuest} disabled={isLoadingQuestEnd}>End Quest</button>
+      <Button variant="secondary" onClick={startForagingQuest} disabled={isLoadingQuestStart}>Start Quest</Button>
+      <Button variant="secondary" onClick={endForagingQuest} disabled={isLoadingQuestEnd}>End Quest</Button>
     </>
   )
 }

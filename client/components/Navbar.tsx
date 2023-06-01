@@ -3,15 +3,19 @@ import { ConnectButton } from "@rainbow-me/rainbowkit"
 
 const Navbar = () => {
   return (
-    <nav style={{ padding: "1rem", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+    <nav className="py-4 flex justify-between items-center">
       <Link href="/">
-        <div style={{ fontWeight: "bold", fontSize: "2rem" }}>FarmCraft</div>
+        <div className="font-bold lg:text-4xl md:text-3xl sm:text-2xl text-xl">FarmCraft</div>
       </Link>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "1.5rem" }}>
+      <div className="lg:text-3xl md:text-2xl sm:text-xl text-md flex justify-between items-center">
         <Link href="/mint">Mint</Link>
-        <Link href="/play" style={{ marginLeft: "2rem" }}>Play</Link>
+        <Link href="/play" className="md:ml-[2rem] sm:ml-2 ml-1">Play</Link>
       </div>
-      <ConnectButton />
+      <ConnectButton
+        accountStatus={{
+          smallScreen: 'avatar',
+          largeScreen: 'full',
+        }} />
     </nav>
   )
 }

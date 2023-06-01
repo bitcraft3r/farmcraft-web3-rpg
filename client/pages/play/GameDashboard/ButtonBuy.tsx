@@ -1,6 +1,7 @@
 import React from 'react'
 import { useContractWrite } from 'wagmi'
 import CONTRACT_ABI from '../../../data/abi.json'
+import { Button } from '../../../components/ui/button'
 
 interface ButtonBuyProps {
   farmerTokenId: number
@@ -23,7 +24,7 @@ const ButtonBuy: React.FC<ButtonBuyProps> = ({ farmerTokenId }) => {
   }
 
   return (
-    <button onClick={buyHandler} disabled={isLoading}>Buy Seeds</button>
+    <Button variant="secondary" onClick={buyHandler} disabled={isLoading}>Buy 5 Seeds with 1 GOLD</Button>
   )
 }
 

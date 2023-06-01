@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import React, { useEffect, useState } from 'react'
 import { useContractRead } from 'wagmi'
+import { MapPin } from 'lucide-react'
 
 import CONTRACT_ABI from '../../data/abi.json'
 import ButtonFarm from './GameDashboard/ButtonFarm'
@@ -8,7 +9,10 @@ import ButtonQuest from './GameDashboard/ButtonQuest'
 import ButtonSell from './GameDashboard/ButtonSell'
 import ButtonBuy from './GameDashboard/ButtonBuy'
 import ContainerPlayer from './GameDashboard/ContainerPlayer'
-import ContainerResources from './GameDashboard/ContainerResources'
+
+import GameDialog from './GameDashboard/GameDialog'
+
+
 
 interface GameDashboardProps {
   address: `0x${string}` | undefined
@@ -57,35 +61,41 @@ const GameDashboard: React.FC<GameDashboardProps> = ({ address }) => {
         ? <div>Loading...</div>
         :
         <>
-          <div>
+          {/* Player Attributes & Resources */}
+          <div className="md:absolute md:top-[15%] md:left-[5%] bg-slate-500 bg-opacity-50 rounded-xl border-8 border-slate-800">
+            <ContainerPlayer address={address} imgIpfsHash={farmerData[8]} experience={Number(farmerData[1])} status={farmerData[7]} seeds={Number(farmerData[3])} gold={Number(farmerData[4])} crops={Number(farmerData[5])} />
+          </div>
+
+          {/* Game Screen */}
+          <div className="relative mb-auto min-h-fit flex flex-col sm:flex-row items-center justify-center mx-auto">
             {/* Minimap */}
-            <Image src="/images/minimap.webp" alt="FarmCraft Game Minimap" width={1200} height={800} layout="responsive" style={{ position: "absolute", zIndex: -1 }} />
+            <Image src="/images/minimap.webp" alt="FarmCraft Game Minimap" width={1200} height={800} className="rounded-xl z-[-1]" />
 
             {/* Actions */}
-            <div style={{ position: "absolute", top: "60%", left: "40%", transform: "translate(-60%, -40%)" }}>
-              <ButtonFarm farmerTokenId={Number(farmerTokenId)} activeCrops={farmerData[2]} />
+            {/* 1. Farming */}
+            <div className="absolute sm:left-[25%] sm:top-[35%] left-[15%] top-[15%]">
+              <GameDialog title="Farm" description="Cultivate a variety of crops with different maturity times and yields.">
+                <ButtonFarm farmerTokenId={Number(farmerTokenId)} activeCrops={farmerData[2]} />
+              </GameDialog>
             </div>
-            <div style={{ position: "absolute", top: "55%", left: "80%", transform: "translate(-55%, -80%)" }}>
-              <ButtonQuest farmerTokenId={Number(farmerTokenId)} />
+            {/* 2. Questing */}
+            <div className="absolute sm:right-[15%] sm:top-[25%] right-[5%] top-[37%]">
+              <GameDialog title="Forage" description="Explore the wilderness and earn rewards.">
+                <ButtonQuest farmerTokenId={Number(farmerTokenId)} />
+              </GameDialog>
             </div>
-            <div style={{ position: "absolute", top: "75%", left: "50%", transform: "translate(-75%, -50%)" }}>
-              <ButtonSell farmerTokenId={Number(farmerTokenId)} />
-            </div>
-            <div style={{ position: "absolute", top: "80%", left: "45%", transform: "translate(-80%, -45%)" }}>
-              <ButtonBuy farmerTokenId={Number(farmerTokenId)} />
+            {/* 3. Marketplace */}
+            <div className="absolute sm:left-[40%] sm:bottom-[40%] left-[25%] bottom-[20%]">
+              <GameDialog title="Market" description="Buy seeds or Sell your crops to earn GOLD.">
+                <ButtonSell farmerTokenId={Number(farmerTokenId)} />
+                <ButtonBuy farmerTokenId={Number(farmerTokenId)} />
+              </GameDialog>
             </div>
 
           </div>
 
-          {/* Player & Attributes */}
-          <div style={{ width: "200px", height: "100%", border: "1px solid #79673e" }}>
-            <ContainerPlayer address={address} imgIpfsHash={farmerData[8]} experience={Number(farmerData[1])} status={farmerData[7]} />
-          </div>
 
-          {/* Resources */}
-          <div style={{ position: "absolute", right: "10%", top: "15%", width: "150px", height: "150px", border: "1px solid #79673e" }}>
-            <ContainerResources seeds={Number(farmerData[3])} gold={Number(farmerData[4])} crops={Number(farmerData[5])} />
-          </div>
+
         </>
       }
 

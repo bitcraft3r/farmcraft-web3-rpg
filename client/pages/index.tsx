@@ -1,4 +1,3 @@
-import { ConnectButton } from '@rainbow-me/rainbowkit';
 import type { NextPage } from 'next';
 import Head from 'next/head';
 import styles from '../styles/Home.module.css';
@@ -18,7 +17,7 @@ const Home: NextPage = () => {
 
       <main className={styles.main}>
         <h1 className={styles.title}>
-          Welcome to <a href="">FarmCraft</a>!
+          Welcome to <Link href="/play">FarmCraft</Link>!
         </h1>
 
         <p className={styles.description}>
@@ -26,27 +25,14 @@ const Home: NextPage = () => {
         </p>
 
         <div className={styles.grid}>
-          <Link className={styles.card} href="/play">
-            <h2>Plant Crops &rarr;</h2>
-            <p>Cultivate a variety of crops with different maturity times and yields.</p>
+          <Link className={styles.card} href="/mint">
+            <h2>Mint a Farmer NFT &rarr;</h2>
+            <p>Create and own a unique AI-generated Farmer NFT.</p>
           </Link>
 
           <Link className={styles.card} href="/play">
-            <h2>Harvest Rewards &rarr;</h2>
-            <p>Reap the rewards of your hard work by harvesting your crops.</p>
-          </Link>
-
-          <Link
-            className={styles.card}
-            href="/play"
-          >
-            <h2>Forage Quests &rarr;</h2>
-            <p>Explore the wilderness and earn rewards.</p>
-          </Link>
-
-          <Link className={styles.card} href="/play">
-            <h2>Trade Crops for GOLD &rarr;</h2>
-            <p>Sell your crops to earn GOLD and expand your farm.</p>
+            <h2>Start Playing &rarr;</h2>
+            <p>Cultivate, harvest, explore, and trade for a thriving farm.</p>
           </Link>
 
           <Link
@@ -73,11 +59,7 @@ const Home: NextPage = () => {
         </div>
       </main>
 
-      <footer className={styles.footer}>
-        <Link href="https://twitter.com/omniv3rse_" rel="noopener noreferrer" target="_blank">
-          Made with ❤️ by Omniv3rse.com
-        </Link>
-      </footer>
+
     </div>
   );
 };

@@ -9,8 +9,13 @@ import {
   arbitrumGoerli, scrollTestnet, goerli,
 } from 'wagmi/chains';
 import { publicProvider } from 'wagmi/providers/public';
+import { Josefin_Sans } from 'next/font/google'
+
 import styles from '../styles/Home.module.css';
 import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
+
+const font = Josefin_Sans({ subsets: ['latin'] })
 
 const mantleTestnet: Chain = {
   id: 5_001,
@@ -73,10 +78,11 @@ function MyApp({ Component, pageProps }: AppProps) {
   return (
     <WagmiConfig config={wagmiConfig}>
       <RainbowKitProvider chains={chains} initialChain={scrollAlpha}>
-        <div className={styles.container} style={{ height: '100vh' }}>
+        <div className={`${styles.container} ${font.className} h-screen`}>
           <Navbar />
-          <div style={{ padding: "1rem" }}>
+          <div>
             <Component {...pageProps} />
+            <Footer />
           </div>
         </div>
       </RainbowKitProvider>

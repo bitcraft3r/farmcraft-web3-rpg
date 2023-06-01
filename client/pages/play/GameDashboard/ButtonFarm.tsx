@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useContractRead, useContractWrite } from 'wagmi'
 import CONTRACT_ABI from '../../../data/abi.json'
+import { Button } from '../../../components/ui/button'
 
 interface ButtonFarmProps {
   farmerTokenId: number
@@ -50,8 +51,8 @@ const ButtonFarm: React.FC<ButtonFarmProps> = ({ farmerTokenId, activeCrops }) =
 
   return (
     <>
-      <button onClick={startFarming} disabled={isLoadingFarmStart}>Plant Seeds</button>
-      <button onClick={endFarming} disabled={cropIds.length === 0 || isLoadingFarmEnd}>Harvest Crops</button>
+      <Button variant="secondary" onClick={startFarming} disabled={isLoadingFarmStart}>Plant Seeds</Button>
+      <Button variant="secondary" onClick={endFarming} disabled={cropIds.length === 0 || isLoadingFarmEnd}>Harvest Crops</Button>
     </>
   )
 }

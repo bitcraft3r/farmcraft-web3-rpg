@@ -33,22 +33,22 @@ const Play = () => {
 
   return (
     <div>
-        <Head>
-            <title>FarmCraft - Play</title>
-            <meta
-            content="Blockchain farming simulator RPG"
-            name="description"
-            />
-        </Head>
+      <Head>
+        <title>FarmCraft - Play</title>
+        <meta
+          content="Blockchain farming simulator RPG"
+          name="description"
+        />
+      </Head>
 
-        <main>
-            <div>
-            {!hasFarmer
-              ? "Connect Wallet & Mint a Famer to get started!"
-              : <GameDashboard address={address} />
-            }
-            </div>
-        </main>
+      <main>
+        <div>
+          {!hasFarmer
+            ? <div className="flex justify-center items-center h-[75vh] text-xl text-center">Connect Wallet & Mint a Famer to get started!</div>
+            : <GameDashboard address={address} />
+          }
+        </div>
+      </main>
     </div>
   )
 }
