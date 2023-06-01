@@ -37,7 +37,7 @@ const Home: NextPage = () => {
 
           <Link
             className={styles.card}
-            href="https://testnet.zonic.app/collection/scroll_alpha_testnet/0x248572ed92B54de2526fc357F420a2ab4E7D2DaB"
+            href={`https://testnet.zonic.app/collection/scroll_alpha_testnet/${process.env.NEXT_PUBLIC_CONTRACT_ADDRESS}`}
             rel="noopener noreferrer"
             target="_blank"
           >

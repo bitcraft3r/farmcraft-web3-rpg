@@ -20,8 +20,6 @@ contract FarmCraft is ERC721, Ownable {
     uint256 public totalGoldEarned;
 
     uint256 public constant QUEST_DURATION = 1 minutes;
-    uint256 public constant SEEDS_FOR_GOLD = 5; // Number of seeds to purchase with 1 GOLD
-    uint256 public constant CROPS_FOR_GOLD = 10; // Number of crops to sell for 1 GOLD
 
     struct Crop {
         uint256 maturityTime;
@@ -189,17 +187,18 @@ contract FarmCraft is ERC721, Ownable {
     /**
      * @dev Buy seeds using GOLD.
      * @param farmerId The ID of the farmer buying the seeds.
-     * @param amount The amount of GOLD used to buy seeds.
+     * @param amountGold The amount of GOLD used to buy seeds.
      */
-    function buySeeds(uint256 farmerId, uint256 amount) external {
+    function buySeeds(uint256 farmerId, uint256 amountGold) external {
         require(ownerOf(farmerId) == msg.sender, "Only farmer owner can buy seeds");
+        require(!farmers[farmerId].questActive, "Currently on a quest");
 
         Farmer storage farmer = farmers[farmerId];
-        uint256 seedsToBuy = amount * SEEDS_FOR_GOLD; // Buy 5 seeds per 1 GOLD
+        require(farmer.gold >= amountGold, "Insufficient GOLD");
 
-        require(farmer.gold >= amount, "Insufficient GOLD");
+        uint256 seedsToBuy = amountGold * 3; // Buy 3 seeds per 1 GOLD
 
-        farmer.gold -= amount;
+        farmer.gold -= amountGold;
         farmer.seeds += seedsToBuy;
         totalSeeds += seedsToBuy;
         _initiateMetadata(farmerId);
@@ -243,6 +242,7 @@ contract FarmCraft is ERC721, Ownable {
     function plantCrop(uint256 farmerId, uint256 cropTypeId) external {
         require(ownerOf(farmerId) == msg.sender, "Only farmer owner can plant crops");
         require(cropTypeId < cropTypeCounter.current(), "Invalid crop type ID");
+        require(!farmers[farmerId].questActive, "Currently on a quest");
 
         Farmer storage farmer = farmers[farmerId];
         CropType storage cropType = cropTypes[cropTypeId];
@@ -265,6 +265,7 @@ contract FarmCraft is ERC721, Ownable {
     function harvestCrop(uint256 farmerId, uint256 cropId) external {
         require(ownerOf(farmerId) == msg.sender, "Only farmer owner can harvest crops");
         require(cropId < totalCrops, "Invalid crop ID");
+        require(!farmers[farmerId].questActive, "Currently on a quest");
         require(!crops[cropId].harvested, "Crop has already been harvested");
 
         Farmer storage farmer = farmers[farmerId];
@@ -283,18 +284,19 @@ contract FarmCraft is ERC721, Ownable {
     /**
      * @dev Sell crops for GOLD.
      * @param farmerId The ID of the farmer selling crops.
-     * @param amountOfCrops The amount of crops to sell.
+     * @param amountCrops The amount of crops to sell.
      */
-    function sellCrops(uint256 farmerId, uint256 amountOfCrops) external {
+    function sellCrops(uint256 farmerId, uint256 amountCrops) external {
         require(ownerOf(farmerId) == msg.sender, "Only farmer owner can sell crops");
-        require(farmers[farmerId].cropsEarned >= amountOfCrops, "Insufficient crops to sell");
+        require(farmers[farmerId].cropsEarned >= amountCrops, "Insufficient crops to sell");
+        require(!farmers[farmerId].questActive, "Currently on a quest");
 
         Farmer storage farmer = farmers[farmerId];
-        uint256 goldToEarn = amountOfCrops / CROPS_FOR_GOLD; // Sell 10 cropsEarned for 1 GOLD
+        uint256 goldToEarn = amountCrops / 5; // Sell 5 cropsEarned for 1 GOLD
 
-        farmer.cropsEarned -= amountOfCrops;
+        farmer.cropsEarned -= amountCrops;
         farmer.gold += goldToEarn;
-        totalCropsSold += amountOfCrops;
+        totalCropsSold += amountCrops;
         totalGoldEarned += goldToEarn;
         farmer.experience += goldToEarn; // Increase experience for selling crops
         _initiateMetadata(farmerId);
