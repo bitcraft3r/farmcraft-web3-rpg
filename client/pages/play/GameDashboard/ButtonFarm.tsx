@@ -2,13 +2,6 @@ import React, { useEffect, useState } from 'react'
 import { useContractRead, useContractWrite } from 'wagmi'
 import CONTRACT_ABI from '../../../data/abi.json'
 
-// 1. GET connected wallet's address
-// 2. GET tokenId of the wallet's farmer nft
-// 3. GET the cropTypeId that player wants to plant - TODO
-// 3. call startFarming(farmerId, cropTypeId) to start foraging quest
-// 4. GET cropId of the planted crop - TODO
-// 4. call endFarming(farmerId, cropId) to end foraging quest
-
 interface ButtonFarmProps {
   farmerTokenId: number
   activeCrops: number[]
@@ -16,7 +9,7 @@ interface ButtonFarmProps {
 
 const ButtonFarm: React.FC<ButtonFarmProps> = ({ farmerTokenId, activeCrops }) => {
   const farmerId = farmerTokenId
-  const cropTypeId = 0 // replace with actual cropId
+  const cropTypeId = 0 // TODO: replace with actual cropId
   const [cropIds, setCropIds] = useState<number[]>([]);
 
   useEffect(() => {

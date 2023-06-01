@@ -2,6 +2,7 @@ import { ConnectButton } from '@rainbow-me/rainbowkit';
 import type { NextPage } from 'next';
 import Head from 'next/head';
 import styles from '../styles/Home.module.css';
+import Link from 'next/link';
 
 const Home: NextPage = () => {
   return (
@@ -17,63 +18,65 @@ const Home: NextPage = () => {
 
       <main className={styles.main}>
         <h1 className={styles.title}>
-          Welcome to <a href="">RainbowKit</a> + <a href="">wagmi</a> +{' '}
-          <a href="https://nextjs.org">Next.js!</a>
+          Welcome to <a href="">FarmCraft</a>!
         </h1>
 
         <p className={styles.description}>
-          Get started by editing{' '}
-          <code className={styles.code}>pages/index.tsx</code>
+          <code className={styles.code}>Become a Digital Farmer and Grow Your Virtual Crops</code>
         </p>
 
         <div className={styles.grid}>
-          <a className={styles.card} href="https://rainbowkit.com">
-            <h2>RainbowKit Documentation &rarr;</h2>
-            <p>Learn how to customize your wallet connection flow.</p>
-          </a>
+          <Link className={styles.card} href="/play">
+            <h2>Plant Crops &rarr;</h2>
+            <p>Cultivate a variety of crops with different maturity times and yields.</p>
+          </Link>
 
-          <a className={styles.card} href="https://wagmi.sh">
-            <h2>wagmi Documentation &rarr;</h2>
-            <p>Learn how to interact with Ethereum.</p>
-          </a>
+          <Link className={styles.card} href="/play">
+            <h2>Harvest Rewards &rarr;</h2>
+            <p>Reap the rewards of your hard work by harvesting your crops.</p>
+          </Link>
 
-          <a
+          <Link
             className={styles.card}
-            href="https://github.com/rainbow-me/rainbowkit/tree/main/examples"
+            href="/play"
           >
-            <h2>RainbowKit Examples &rarr;</h2>
-            <p>Discover boilerplate example RainbowKit projects.</p>
-          </a>
+            <h2>Forage Quests &rarr;</h2>
+            <p>Explore the wilderness and earn rewards.</p>
+          </Link>
 
-          <a className={styles.card} href="https://nextjs.org/docs">
-            <h2>Next.js Documentation &rarr;</h2>
-            <p>Find in-depth information about Next.js features and API.</p>
-          </a>
+          <Link className={styles.card} href="/play">
+            <h2>Trade Crops for GOLD &rarr;</h2>
+            <p>Sell your crops to earn GOLD and expand your farm.</p>
+          </Link>
 
-          <a
+          <Link
             className={styles.card}
-            href="https://github.com/vercel/next.js/tree/canary/examples"
+            href="https://testnet.zonic.app/collection/scroll_alpha_testnet/0x248572ed92B54de2526fc357F420a2ab4E7D2DaB"
+            rel="noopener noreferrer"
+            target="_blank"
           >
-            <h2>Next.js Examples &rarr;</h2>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
+            <h2>Collect NFTs &rarr;</h2>
+            <p>Each farmer is a unique NFT with customizable images and attributes.</p>
+          </Link>
 
-          <a
+          <Link
             className={styles.card}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
+            href="https://discord.gg/DGQCrEjWsP"
+            rel="noopener noreferrer"
+            target="_blank"
           >
-            <h2>Deploy &rarr;</h2>
+            <h2>Join a Thriving Community &rarr;</h2>
             <p>
-              Instantly deploy your Next.js site to a public URL with Vercel.
+              Connect with fellow farmers, trade resources, and share farming strategies.
             </p>
-          </a>
+          </Link>
         </div>
       </main>
 
       <footer className={styles.footer}>
-        <a href="https://rainbow.me" rel="noopener noreferrer" target="_blank">
-          Made with ❤️ by your frens at 🌈
-        </a>
+        <Link href="https://twitter.com/omniv3rse_" rel="noopener noreferrer" target="_blank">
+          Made with ❤️ by Omniv3rse.com
+        </Link>
       </footer>
     </div>
   );
