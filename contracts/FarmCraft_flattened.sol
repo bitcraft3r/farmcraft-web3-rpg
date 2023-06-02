@@ -2138,7 +2138,7 @@ contract FarmCraft is ERC721, Ownable {
     Counters.Counter private cropTypeCounter;
     TractorRace public currentRace;
 
-    constructor() ERC721("FarmCraft", "FARMER") {
+    constructor() ERC721("FarmCraft", "CRAFTER") {
         nextTokenId = 1;
     }
 
@@ -2146,6 +2146,17 @@ contract FarmCraft is ERC721, Ownable {
         require(!currentRace.active, "There is already an active race");
         _;
     }
+
+    event NewFarmerMinted(address farmerAddress, uint256 farmerId);
+    event SeedsBought(uint256 farmerId, uint256 amountSeeds);
+    event QuestStarted(uint256 farmerId);
+    event QuestCompleted(uint256 farmerId);
+    event CropsPlanted(uint256 farmerId, uint256 cropTypeId, uint256 amountCrops);
+    event CropsHarvested(uint256 farmerId, uint256 amountCrops);
+    event CropsSold(uint256 farmerId, uint256 amountCrops, uint256 goldEarned);
+    event RaceEntered(uint256 farmerId, uint256 wager);
+    event RaceLeft(uint256 farmerId, uint256 wager);
+    event RaceCompleted(uint256 firstFarmerId, uint256 challengerFarmerId, uint256 winnerFarmerId, uint256 wager);
 
     /**
      * @dev Get information about a specific crop.
@@ -2202,8 +2213,8 @@ contract FarmCraft is ERC721, Ownable {
 
     function _constructTokenURI(uint256 tokenId, Farmer memory farmer) private pure returns (string memory) {
         // string memory baseURI = _baseURI();
-        string memory name = string(abi.encodePacked("Farmer #", uintToStr(tokenId)));
-        string memory description = "FarmCraft Farmer NFTs by Omniv3rse.com.";
+        string memory name = string(abi.encodePacked("Crafter #", uintToStr(tokenId)));
+        string memory description = "FarmCraft NFTs by Omniv3rse.com.";
         string memory image = string(abi.encodePacked("https://gateway.pinata.cloud/ipfs/", farmer.imageIpfsHash));
 
         string memory attributes = string(
@@ -2249,6 +2260,7 @@ contract FarmCraft is ERC721, Ownable {
     /**
      * @dev Mint a new farmer NFT.
      * @param imageIpfsHash The IPFS hash of the farmer's image.
+     * @param playerName The string for a farmer's name.
      */
     function mintFarmer(string memory imageIpfsHash, string memory playerName) external {
         require(!addressMinted[msg.sender], "Only one farmer per address");
@@ -2273,6 +2285,7 @@ contract FarmCraft is ERC721, Ownable {
         nextTokenId++;
         totalFarmers++;
         addressMinted[msg.sender] = true;
+        emit NewFarmerMinted(msg.sender, farmerId);
     }
 
     /**
@@ -2293,6 +2306,7 @@ contract FarmCraft is ERC721, Ownable {
         farmer.seeds += seedsToBuy;
         totalSeeds += seedsToBuy;
         _initiateMetadata(farmerId);
+        emit SeedsBought(farmerId, seedsToBuy);
     }
 
     /**
@@ -2306,6 +2320,7 @@ contract FarmCraft is ERC721, Ownable {
         farmers[farmerId].status = 2;
         farmers[farmerId].questEndTime = block.timestamp + QUEST_DURATION;
         _initiateMetadata(farmerId);
+        emit QuestStarted(farmerId);
     }
 
     /**
@@ -2323,6 +2338,7 @@ contract FarmCraft is ERC721, Ownable {
         totalSeeds++;
         farmers[farmerId].experience++; // Increase experience for completing a quest
         _initiateMetadata(farmerId);
+        emit QuestCompleted(farmerId);
     }
 
     /**
@@ -2351,6 +2367,7 @@ contract FarmCraft is ERC721, Ownable {
         farmer.seeds -= cropType.seedCost * amountCrops;
         farmers[farmerId].status = 1;
         _initiateMetadata(farmerId);
+        emit CropsPlanted(farmerId, cropTypeId, amountCrops);
     }
 
     /**
@@ -2363,6 +2380,7 @@ contract FarmCraft is ERC721, Ownable {
 
         Farmer storage farmer = farmers[farmerId];
         EnumerableSet.UintSet storage farmerCropIds = farmerCrops[farmerId];
+        uint256 harvestedCount = 0;
 
         for (uint256 i = 0; i < farmerCropIds.length(); i++) {
             uint256 cropId = farmerCropIds.at(i);
@@ -2370,6 +2388,7 @@ contract FarmCraft is ERC721, Ownable {
 
             if (!crop.harvested && block.timestamp >= crop.plantedAt + crop.maturityTime) {
                 crop.harvested = true;
+                harvestedCount++;
                 farmer.cropsEarned += crop.yield;
                 totalCropsSold += crop.yield;
                 farmer.experience += crop.yield; // Increase experience for harvesting a crop
@@ -2383,6 +2402,7 @@ contract FarmCraft is ERC721, Ownable {
         }
 
         _initiateMetadata(farmerId);
+        emit CropsHarvested(farmerId, harvestedCount);
     }
 
     /**
@@ -2396,7 +2416,7 @@ contract FarmCraft is ERC721, Ownable {
         require(farmers[farmerId].status == 0, "Current status is not idle");
 
         Farmer storage farmer = farmers[farmerId];
-        uint256 goldToEarn = amountCrops / 5; // Sell 5 cropsEarned for 1 GOLD
+        uint256 goldToEarn = amountCrops / 5; // Sell 5 crops for 1 GOLD
 
         farmer.cropsEarned -= amountCrops;
         farmer.gold += goldToEarn;
@@ -2404,6 +2424,7 @@ contract FarmCraft is ERC721, Ownable {
         totalGoldEarned += goldToEarn;
         farmer.experience += goldToEarn; // Increase experience for selling crops
         _initiateMetadata(farmerId);
+        emit CropsSold(farmerId, amountCrops, goldToEarn);
     }
 
     /**
@@ -2418,6 +2439,7 @@ contract FarmCraft is ERC721, Ownable {
         require(farmers[farmerId].gold >= wager, "Insufficient gold"); // Check that player has enough gold
         farmers[farmerId].gold -= wager; // Deduct the gold equal to the wager amount
         farmers[farmerId].status = 3;
+        emit RaceEntered(farmerId, wager);
 
         currentRace = TractorRace(farmerId, wager, true);
     }
@@ -2432,8 +2454,9 @@ contract FarmCraft is ERC721, Ownable {
         Farmer storage farmer = farmers[currentRace.farmerId];
         farmer.gold += currentRace.wager; // Return the wagered gold to the farmer
         farmers[currentRace.farmerId].status = 0; // Reset farmer status to idle
+        emit RaceLeft(currentRace.farmerId, currentRace.wager);
 
-        currentRace = TractorRace(0, 0, false); // Deactivate the current race
+        currentRace = TractorRace(0, 0, false); // Deactivate and reset the current race
     }
 
     /**
@@ -2475,6 +2498,7 @@ contract FarmCraft is ERC721, Ownable {
 
         _initiateMetadata(currentRace.farmerId);
         _initiateMetadata(challengerId);
+        emit RaceCompleted(currentRace.farmerId, challengerId, raceWinner, currentRace.wager);
 
         currentRace = TractorRace(0, 0, false); // Reset race
     }
