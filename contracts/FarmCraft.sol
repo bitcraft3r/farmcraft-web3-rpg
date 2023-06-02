@@ -8,9 +8,6 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/utils/Base64.sol";
 
-// TODO: Add new function to harvest all available crops at once (1 transaction harvest multiple crops - all that are available)
-// TODO: add events, e.g. someone entered the race and waiting for challenger, race ended after challenge, foraging quest timestamp passed and availalbe for player to endQuest, cropId is available to harvest, etc.
-
 contract FarmCraft is ERC721, Ownable {
     using EnumerableSet for EnumerableSet.UintSet;
     using Counters for Counters.Counter;
@@ -310,6 +307,52 @@ contract FarmCraft is ERC721, Ownable {
 
         _initiateMetadata(farmerId);
     }
+
+    /**
+     * @dev Harvests all crops for a given farmer.
+     * @param farmerId The ID of the farmer harvesting the crops.
+     */
+    function harvestAllCrops(uint256 farmerId) external {
+        require(ownerOf(farmerId) == msg.sender, "Only farmer owner can harvest crops");
+        require(farmers[farmerId].status == 1, "Current status is not farming");
+
+        Farmer storage farmer = farmers[farmerId];
+        EnumerableSet.UintSet storage cropIds = farmerCrops[farmerId];
+
+        uint256 remainingCrops = 0; // Counter for remaining unharvested crops
+
+        // Iterate through all cropIds for the farmer
+        for (uint256 i = 0; i < cropIds.length(); i++) {
+            uint256 cropId = cropIds.at(i);
+            Crop storage crop = crops[cropId];
+
+            // Check if the crop is ready to be harvested
+            if (!crop.harvested && block.timestamp >= crop.plantedAt + crop.maturityTime) {
+                crop.harvested = true;
+                farmer.cropsEarned += crop.yield;
+                totalCropsSold += crop.yield;
+                farmer.experience += crop.yield; // Increase experience for harvesting a crop
+                farmerCrops[farmerId].remove(cropId); // Remove the harvested crop ID from the farmer's crops array
+            }
+            
+            // Check if the crop was not harvested
+            if (!crop.harvested) {
+                remainingCrops++; // Increment the counter for unharvested crops
+            }
+        }
+
+        // Update the farmer's status based on remaining crops
+        if (remainingCrops > 0) {
+            // If there are remaining unharvested crops, keep the status as farming (1)
+            farmers[farmerId].status = 1;
+        } else {
+            // If all crops were harvested, change the status to idle (0)
+            farmers[farmerId].status = 0;
+        }
+
+        _initiateMetadata(farmerId);
+    }
+
 
     /**
      * @dev Sell crops for GOLD.
