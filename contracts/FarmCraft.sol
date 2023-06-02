@@ -8,10 +8,8 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/utils/Base64.sol";
 
-// TODO: ChallengeRace is failing
-// TODO: ActiveCrop not preventing me from questing / other actions --> remove farming active crops unharvested as blocker for other actions
-// TODO: Change questActive boolean to integer and rename more relevant to track status i.e. 0=idle, 1=quest, 2=farm, 3=race.
-// TODO: add events, e.g. someone entered the race and waiting for challenger.
+// TODO: Add new function to harvest all available crops at once (1 transaction harvest multiple crops - all that are available)
+// TODO: add events, e.g. someone entered the race and waiting for challenger, race ended after challenge, foraging quest timestamp passed and availalbe for player to endQuest, cropId is available to harvest, etc.
 
 contract FarmCraft is ERC721, Ownable {
     using EnumerableSet for EnumerableSet.UintSet;
@@ -41,7 +39,7 @@ contract FarmCraft is ERC721, Ownable {
         uint256 gold;
         uint256 cropsEarned;
         uint256 questEndTime;
-        bool questActive;
+        uint256 status; // 0=idle, 1=farm, 2=quest, 3=race.
         string imageIpfsHash;
         string name;
         uint256 racesWon;
@@ -195,7 +193,7 @@ contract FarmCraft is ERC721, Ownable {
             0,
             0,
             0,
-            false,
+            0,
             imageIpfsHash,
             playerName,
             0
@@ -214,9 +212,7 @@ contract FarmCraft is ERC721, Ownable {
      */
     function buySeeds(uint256 farmerId, uint256 amountGold) external {
         require(ownerOf(farmerId) == msg.sender, "Only farmer owner can buy seeds");
-        require(!farmers[farmerId].questActive, "Currently on a quest");
-        require(currentRace.farmerId != farmerId, "Currently waiting to race");
-        require(farmers[farmerId].crops.length == 0, "Currently have unharvested crops");
+        require(farmers[farmerId].status == 0, "Current status is not idle");
 
         Farmer storage farmer = farmers[farmerId];
         require(farmer.gold >= amountGold, "Insufficient GOLD");
@@ -235,11 +231,9 @@ contract FarmCraft is ERC721, Ownable {
      */
     function startForagingQuest(uint256 farmerId) external {
         require(ownerOf(farmerId) == msg.sender, "Only farmer owner can start the quest");
-        require(!farmers[farmerId].questActive, "Quest is already active");
-        require(farmers[farmerId].crops.length == 0, "Currently have unharvested crops");
-        require(currentRace.farmerId != farmerId, "Currently waiting to race");
+        require(farmers[farmerId].status == 0, "Current status is not idle");
 
-        farmers[farmerId].questActive = true;
+        farmers[farmerId].status = 2;
         farmers[farmerId].questEndTime = block.timestamp + QUEST_DURATION;
         _initiateMetadata(farmerId);
     }
@@ -250,14 +244,14 @@ contract FarmCraft is ERC721, Ownable {
      */
     function endForagingQuest(uint256 farmerId) external {
         require(ownerOf(farmerId) == msg.sender, "Only farmer owner can end the quest");
-        require(farmers[farmerId].questActive, "Quest is not active");
+        require(farmers[farmerId].status == 2, "Quest is not active");
         require(block.timestamp >= farmers[farmerId].questEndTime, "Quest is not yet completed");
 
-        farmers[farmerId].seeds += 1; // Reward 1 SEED for completing the quest
-        farmers[farmerId].questActive = false;
+        farmers[farmerId].seeds++; // Reward 1 SEED for completing the quest
+        farmers[farmerId].status = 0;
         farmers[farmerId].questEndTime = 0;
         totalSeeds++;
-        farmers[farmerId].experience += 1; // Increase experience for completing a quest
+        farmers[farmerId].experience++; // Increase experience for completing a quest
         _initiateMetadata(farmerId);
     }
 
@@ -269,8 +263,7 @@ contract FarmCraft is ERC721, Ownable {
     function plantCrop(uint256 farmerId, uint256 cropTypeId) external {
         require(ownerOf(farmerId) == msg.sender, "Only farmer owner can plant crops");
         require(cropTypeId < cropTypeCounter.current(), "Invalid crop type ID");
-        require(!farmers[farmerId].questActive, "Currently on a quest");
-        require(currentRace.farmerId != farmerId, "Currently waiting to race");
+        require(farmers[farmerId].status <= 1, "Currently on quest or waiting to race");
 
         Farmer storage farmer = farmers[farmerId];
         CropType storage cropType = cropTypes[cropTypeId];
@@ -282,6 +275,7 @@ contract FarmCraft is ERC721, Ownable {
         farmer.seeds -= cropType.seedCost;
         totalCrops++;
         farmer.experience += 1; // Increase experience for planting a crop
+        farmers[farmerId].status = 1;
         _initiateMetadata(farmerId);
     }
 
@@ -293,8 +287,7 @@ contract FarmCraft is ERC721, Ownable {
     function harvestCrop(uint256 farmerId, uint256 cropId) external {
         require(ownerOf(farmerId) == msg.sender, "Only farmer owner can harvest crops");
         require(cropId < totalCrops, "Invalid crop ID");
-        require(!farmers[farmerId].questActive, "Currently on a quest");
-        require(currentRace.farmerId != farmerId, "Currently waiting to race");
+        require(farmers[farmerId].status == 1, "Current status is not farming");
         require(!crops[cropId].harvested, "Crop has already been harvested");
 
         Farmer storage farmer = farmers[farmerId];
@@ -307,6 +300,14 @@ contract FarmCraft is ERC721, Ownable {
         totalCropsSold += crop.yield;
         farmer.experience += crop.yield; // Increase experience for harvesting a crop
         farmerCrops[farmerId].remove(cropId); // Remove the harvested crop ID from the farmer's crops array
+
+        // Update farmer's status
+        if (farmerCrops[farmerId].length() == 0) {
+            farmers[farmerId].status = 0;
+        } else {
+            farmers[farmerId].status = 1; // Farmmer still has active unharvested crops
+        }
+
         _initiateMetadata(farmerId);
     }
 
@@ -318,9 +319,7 @@ contract FarmCraft is ERC721, Ownable {
     function sellCrops(uint256 farmerId, uint256 amountCrops) external {
         require(ownerOf(farmerId) == msg.sender, "Only farmer owner can sell crops");
         require(farmers[farmerId].cropsEarned >= amountCrops, "Insufficient crops to sell");
-        require(!farmers[farmerId].questActive, "Currently on a quest");
-        require(currentRace.farmerId != farmerId, "Currently waiting to race");
-        require(farmers[farmerId].crops.length == 0, "Currently have unharvested crops");
+        require(farmers[farmerId].status == 0, "Current status is not idle");
 
         Farmer storage farmer = farmers[farmerId];
         uint256 goldToEarn = amountCrops / 5; // Sell 5 cropsEarned for 1 GOLD
@@ -339,12 +338,12 @@ contract FarmCraft is ERC721, Ownable {
      * @param wager The amount of gold wagered on the race.
      */
     function enterRace(uint256 farmerId, uint256 wager) external noActiveRace {
-        require(!farmers[farmerId].questActive, "Currently on a quest");
-        require(farmers[farmerId].crops.length == 0, "Currently have unharvested crops");
         require(ownerOf(farmerId) == msg.sender, "Only farmer owner can enter the Arena");
+        require(farmers[farmerId].status == 0, "Current status is not idle");
         require(wager > 0, "Wager must be greater than zero");
         require(farmers[farmerId].gold >= wager, "Insufficient gold"); // Check that player has enough gold
         farmers[farmerId].gold -= wager; // Deduct the gold equal to the wager amount
+        farmers[farmerId].status = 3;
 
         currentRace = TractorRace(farmerId, wager, true);
     }
@@ -366,25 +365,21 @@ contract FarmCraft is ERC721, Ownable {
      * @dev Challenge another player in the current tractor race.
      * @param challengerId The ID of the farmer challenging the player.
      */
-    function challengePlayer(uint256 challengerId) external {
-        require(!farmers[challengerId].questActive, "Currently on a quest");
-        require(farmers[challengerId].crops.length == 0, "Currently have unharvested crops");
+    function challengeRace(uint256 challengerId) external {
+        require(farmers[challengerId].status == 0, "Current status is not idle");
         require(ownerOf(challengerId) == msg.sender, "Only farmer owner can challenge the player");
-
-        TractorRace memory race = currentRace;
-        require(race.active, "There is no active race");
-
-        require(farmers[challengerId].gold >= race.wager, "Insufficient gold"); // Check that player has enough gold
-        farmers[challengerId].gold -= race.wager; // Deduct the gold equal to the wager amount
+        require(currentRace.active, "There is no active race");
+        require(farmers[challengerId].gold >= currentRace.wager, "Insufficient gold"); // Check that player has enough gold
+        farmers[challengerId].gold -= currentRace.wager; // Deduct the gold equal to the wager amount
 
         uint256 raceWinner;
-        uint256 experienceDiff = farmers[race.farmerId].experience - farmers[challengerId].experience;
+        uint256 experienceDiff = farmers[currentRace.farmerId].experience - farmers[challengerId].experience;
         uint256 randomLuck = experienceDiff % 4; // Generate a random number between 0 and 3
 
         if (randomLuck > 0) {
             // 75% of the time, the higher experienced farmer wins
             if (experienceDiff >= 0) {
-                raceWinner = race.farmerId;
+                raceWinner = currentRace.farmerId;
             } else {
                 raceWinner = challengerId;
             }
@@ -393,19 +388,20 @@ contract FarmCraft is ERC721, Ownable {
             if (experienceDiff > 0) {
                 raceWinner = challengerId;
             } else {
-                raceWinner = race.farmerId;
+                raceWinner = currentRace.farmerId;
             }
         }
 
-        uint256 totalWager = race.wager * 2;
+        uint256 totalWager = currentRace.wager * 2;
         farmers[raceWinner].gold += totalWager;
-        farmers[raceWinner].racesWon += 1;
-        totalGoldEarned += totalWager;
+        farmers[raceWinner].racesWon++;
+        farmers[currentRace.farmerId].status = 0; // Reset first racer status
+        totalGoldEarned += currentRace.wager;
 
-        currentRace = TractorRace(0, 0, false);
-
-        _initiateMetadata(race.farmerId);
+        _initiateMetadata(currentRace.farmerId);
         _initiateMetadata(challengerId);
+
+        currentRace = TractorRace(0, 0, false); // Reset race
     }
 
     /**
