@@ -11,6 +11,7 @@ import ButtonBuy from './GameDashboard/ButtonBuy'
 import ContainerPlayer from './GameDashboard/ContainerPlayer'
 
 import GameDialog from './GameDashboard/GameDialog'
+import ButtonRace from './GameDashboard/ButtonRace'
 
 
 
@@ -63,34 +64,41 @@ const GameDashboard: React.FC<GameDashboardProps> = ({ address }) => {
         <>
           {/* Player Attributes & Resources */}
           <div className="md:absolute md:top-[15%] md:left-[5%] bg-slate-500 bg-opacity-50 rounded-xl border-8 border-slate-800">
-            <ContainerPlayer address={address} imgIpfsHash={farmerData[8]} experience={Number(farmerData[1])} status={farmerData[7]} seeds={Number(farmerData[3])} gold={Number(farmerData[4])} crops={Number(farmerData[5])} />
+            <ContainerPlayer address={address} imgIpfsHash={farmerData[8]} experience={Number(farmerData[1])} status={Number(farmerData[7])} seeds={Number(farmerData[3])} gold={Number(farmerData[4])} crops={Number(farmerData[5])} name={farmerData[9]} wins={Number(farmerData[10])} />
           </div>
 
           {/* Game Screen */}
           <div className="relative mb-auto min-h-fit flex flex-col sm:flex-row items-center justify-center mx-auto">
             {/* Minimap */}
-            <Image src="/images/minimap.webp" alt="FarmCraft Game Minimap" width={1200} height={800} className="rounded-xl z-[-1]" />
+            <Image src="/images/minimap.webp" alt="FarmCraft Game Minimap" width={2400} height={1600} className="rounded-xl z-[-1]" />
 
             {/* Actions */}
             {/* 1. Farming */}
-            <div className="absolute sm:left-[25%] sm:top-[35%] left-[15%] top-[15%]">
-              <GameDialog title="Farm" description="Cultivate a variety of crops with different maturity times and yields.">
+            <div className="absolute sm:left-[25%] sm:top-[35%] left-[15%] top-[30%]">
+              <GameDialog name="Farm" title="Farming" description="Cultivate crops, reap rewards, and become the ultimate master of the harvest.">
                 <ButtonFarm farmerTokenId={Number(farmerTokenId)} activeCrops={farmerData[2]} />
               </GameDialog>
             </div>
             {/* 2. Questing */}
-            <div className="absolute sm:right-[15%] sm:top-[25%] right-[5%] top-[37%]">
-              <GameDialog title="Forage" description="Explore the wilderness and earn rewards.">
+            <div className="absolute sm:left-[50%] sm:top-[15%] right-[20%] top-[10%]">
+              <GameDialog name="Forage" title="Foraging" description="Venture into the wild and gather valuable seeds to enhance your farming empire.">
                 <ButtonQuest farmerTokenId={Number(farmerTokenId)} />
               </GameDialog>
             </div>
             {/* 3. Marketplace */}
             <div className="absolute sm:left-[40%] sm:bottom-[40%] left-[25%] bottom-[20%]">
-              <GameDialog title="Market" description="Buy seeds or Sell your crops to earn GOLD.">
+              <GameDialog name="Market" title="Farmer's Market" description="Engage in a bustling marketplace, where you can unlock incredible opportunities.">
                 <ButtonSell farmerTokenId={Number(farmerTokenId)} />
                 <ButtonBuy farmerTokenId={Number(farmerTokenId)} />
               </GameDialog>
             </div>
+            {/* 4. Tractor Race */}
+            <div className="absolute sm:right-[20%] sm:top-[30%] right-[5%] top-[37%]">
+              <GameDialog name="Race" title="Tractor Race" description="Rev your engines! Compete for gold against skilled farmers in an exhilarating tractor race.">
+                <ButtonRace farmerTokenId={Number(farmerTokenId)} />
+              </GameDialog>
+            </div>
+
 
           </div>
 

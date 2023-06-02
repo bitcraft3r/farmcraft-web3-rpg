@@ -70,18 +70,18 @@
   text-align: left;
   color: inherit;
   text-decoration: none;
-  border: 1px solid #485a2c;
+  border: 2px solid #485a2c;
   border-radius: 10px;
   transition: color 0.15s ease, border-color 0.15s ease;
   max-width: 350px;
-  color: #4f784a;
+  color: #7ba769;
 }
 
 .card:hover,
 .card:focus,
 .card:active {
-  color: #7ba769;
-  border-color: #7ba769;
+  color: #90ad5b;
+  border-color: #90ad5b;
 }
 
 .card h2 {

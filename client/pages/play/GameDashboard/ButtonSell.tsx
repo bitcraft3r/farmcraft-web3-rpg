@@ -1,5 +1,6 @@
 import React from 'react'
 import { useContractWrite } from 'wagmi'
+
 import CONTRACT_ABI from '../../../data/abi.json'
 import { Button } from '../../../components/ui/button'
 
@@ -15,7 +16,7 @@ const ButtonSell: React.FC<ButtonSellProps> = ({ farmerTokenId }) => {
     address: process.env.NEXT_PUBLIC_CONTRACT_ADDRESS,
     abi: CONTRACT_ABI,
     functionName: 'sellCrops',
-    args: [farmerId, 10],
+    args: [farmerId, 5],
   })
 
   const sellHandler = () => {
@@ -24,7 +25,7 @@ const ButtonSell: React.FC<ButtonSellProps> = ({ farmerTokenId }) => {
   }
 
   return (
-    <Button variant="secondary" onClick={sellHandler} disabled={isLoading}>Sell 10 Crops for 1 GOLD</Button>
+    <Button variant="secondary" onClick={sellHandler} disabled={isLoading}>Sell 5 Crops for 1 GOLD</Button>
   )
 }
 

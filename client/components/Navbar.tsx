@@ -3,7 +3,7 @@ import { ConnectButton } from "@rainbow-me/rainbowkit"
 
 const Navbar = () => {
   return (
-    <nav className="py-4 flex justify-between items-center">
+    <nav className="md:py-8 py-4 flex justify-between items-center">
       <Link href="/">
         <div className="font-bold lg:text-4xl md:text-3xl sm:text-2xl text-xl">FarmCraft</div>
       </Link>

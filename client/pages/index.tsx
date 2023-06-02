@@ -3,6 +3,33 @@ import Head from 'next/head';
 import styles from '../styles/Home.module.css';
 import Link from 'next/link';
 
+const gridContent = [
+  {
+    slug: "/mint",
+    external: false,
+    title: "Mint a Farmer NFT",
+    description: "Create and own unique AI-generated Farmer NFTs. Unleash your creativity!"
+  },
+  {
+    slug: "/play",
+    external: false,
+    title: "Adventures Await",
+    description: "Master the art of farming, and race to glory in the Tractor Grand Prix!"
+  },
+  {
+    slug: `https://testnet.zonic.app/collection/scroll_alpha_testnet/${process.env.NEXT_PUBLIC_CONTRACT_ADDRESS}`,
+    external: true,
+    title: "Collect NFTs",
+    description: "Collect and customize unique farmer NFTs with distinct attributes and features."
+  },
+  {
+    slug: "https://discord.gg/DGQCrEjWsP",
+    external: true,
+    title: "Join the Community",
+    description: "Connect, trade, and share with fellow farmers in a vibrant community."
+  },
+]
+
 const Home: NextPage = () => {
   return (
     <div>
@@ -20,42 +47,23 @@ const Home: NextPage = () => {
           Welcome to <Link href="/play">FarmCraft</Link>!
         </h1>
 
-        <p className={styles.description}>
-          <code className={styles.code}>Become a Digital Farmer and Grow Your Virtual Crops</code>
-        </p>
+        <code className={`${styles.code} ${styles.description}`}>
+          Embark on a Thriving Farming Adventure
+        </code>
 
         <div className={styles.grid}>
-          <Link className={styles.card} href="/mint">
-            <h2>Mint a Farmer NFT &rarr;</h2>
-            <p>Create and own a unique AI-generated Farmer NFT.</p>
-          </Link>
-
-          <Link className={styles.card} href="/play">
-            <h2>Start Playing &rarr;</h2>
-            <p>Cultivate, harvest, explore, and trade for a thriving farm.</p>
-          </Link>
-
-          <Link
-            className={styles.card}
-            href={`https://testnet.zonic.app/collection/scroll_alpha_testnet/${process.env.NEXT_PUBLIC_CONTRACT_ADDRESS}`}
-            rel="noopener noreferrer"
-            target="_blank"
-          >
-            <h2>Collect NFTs &rarr;</h2>
-            <p>Each farmer is a unique NFT with customizable images and attributes.</p>
-          </Link>
-
-          <Link
-            className={styles.card}
-            href="https://discord.gg/DGQCrEjWsP"
-            rel="noopener noreferrer"
-            target="_blank"
-          >
-            <h2>Join a Thriving Community &rarr;</h2>
-            <p>
-              Connect with fellow farmers, trade resources, and share farming strategies.
-            </p>
-          </Link>
+          {gridContent.map((content, index) => (
+            <Link
+              className={styles.card}
+              href={content.slug}
+              key={index}
+              rel={content.external ? "noopener noreferrer" : undefined}
+              target={content.external ? "_blank" : undefined}
+            >
+              <div className="text-xl font-bold text-[#c8a365] mb-1">{content.title} &rarr;</div>
+              <p>{content.description}</p>
+            </Link>
+          ))}
         </div>
       </main>
 
