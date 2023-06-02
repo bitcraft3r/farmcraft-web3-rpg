@@ -122,9 +122,9 @@ contract FarmCraft is ERC721, Ownable {
         _setTokenURI(farmerId, _constructTokenURI(farmerId, farmer));
     }
 
-    function _setTokenURI(uint256 tokenId, string memory tokenURI) internal virtual {
+    function _setTokenURI(uint256 tokenId, string memory _tokenURI) internal virtual {
         require(_exists(tokenId), "ERC721Metadata: URI set of nonexistent token");
-        _tokenURIs[tokenId] = tokenURI;
+        _tokenURIs[tokenId] = _tokenURI;
     }
 
     function _constructTokenURI(uint256 tokenId, Farmer memory farmer) private pure returns (string memory) {
@@ -253,80 +253,48 @@ contract FarmCraft is ERC721, Ownable {
     }
 
     /**
-     * @dev Plant a new crop.
+     * @dev Plant seeds of a specific crop type.
      * @param farmerId The ID of the farmer planting the crop.
      * @param cropTypeId The ID of the crop type to plant.
+     * @param amountCrops The number of crops to plant.
      */
-    function plantCrop(uint256 farmerId, uint256 cropTypeId) external {
+    function plantSeeds(uint256 farmerId, uint256 cropTypeId, uint256 amountCrops) external {
         require(ownerOf(farmerId) == msg.sender, "Only farmer owner can plant crops");
         require(cropTypeId < cropTypeCounter.current(), "Invalid crop type ID");
         require(farmers[farmerId].status <= 1, "Currently on quest or waiting to race");
 
         Farmer storage farmer = farmers[farmerId];
         CropType storage cropType = cropTypes[cropTypeId];
-        require(farmer.seeds >= cropType.seedCost, "Insufficient SEEDs");
+        require(farmer.seeds >= cropType.seedCost * amountCrops, "Insufficient seeds");
 
-        uint256 cropId = totalCrops;
-        crops[cropId] = Crop(cropType.maturityTime, cropType.yield, block.timestamp, false);
-        farmerCrops[farmerId].add(cropId);
-        farmer.seeds -= cropType.seedCost;
-        totalCrops++;
-        farmer.experience += 1; // Increase experience for planting a crop
+        for (uint256 i = 0; i < amountCrops; i++) {
+            uint256 cropId = totalCrops;
+            crops[cropId] = Crop(cropType.maturityTime, cropType.yield, block.timestamp, false);
+            farmerCrops[farmerId].add(cropId);
+            totalCrops++;
+            farmer.experience += 1; // Increase experience for planting a crop
+        }
+
+        farmer.seeds -= cropType.seedCost * amountCrops;
         farmers[farmerId].status = 1;
         _initiateMetadata(farmerId);
     }
 
     /**
-     * @dev Harvest a crop.
+     * @dev Harvest all mature crops.
      * @param farmerId The ID of the farmer harvesting the crop.
-     * @param cropId The ID of the crop to harvest.
      */
-    function harvestCrop(uint256 farmerId, uint256 cropId) external {
-        require(ownerOf(farmerId) == msg.sender, "Only farmer owner can harvest crops");
-        require(cropId < totalCrops, "Invalid crop ID");
-        require(farmers[farmerId].status == 1, "Current status is not farming");
-        require(!crops[cropId].harvested, "Crop has already been harvested");
-
-        Farmer storage farmer = farmers[farmerId];
-        Crop storage crop = crops[cropId];
-
-        require(block.timestamp >= crop.plantedAt + crop.maturityTime, "Crop is not yet mature");
-
-        crop.harvested = true;
-        farmer.cropsEarned += crop.yield;
-        totalCropsSold += crop.yield;
-        farmer.experience += crop.yield; // Increase experience for harvesting a crop
-        farmerCrops[farmerId].remove(cropId); // Remove the harvested crop ID from the farmer's crops array
-
-        // Update farmer's status
-        if (farmerCrops[farmerId].length() == 0) {
-            farmers[farmerId].status = 0;
-        } else {
-            farmers[farmerId].status = 1; // Farmmer still has active unharvested crops
-        }
-
-        _initiateMetadata(farmerId);
-    }
-
-    /**
-     * @dev Harvests all crops for a given farmer.
-     * @param farmerId The ID of the farmer harvesting the crops.
-     */
-    function harvestAllCrops(uint256 farmerId) external {
+    function harvestCrops(uint256 farmerId) external {
         require(ownerOf(farmerId) == msg.sender, "Only farmer owner can harvest crops");
         require(farmers[farmerId].status == 1, "Current status is not farming");
 
         Farmer storage farmer = farmers[farmerId];
-        EnumerableSet.UintSet storage cropIds = farmerCrops[farmerId];
+        EnumerableSet.UintSet storage farmerCropIds = farmerCrops[farmerId];
 
-        uint256 remainingCrops = 0; // Counter for remaining unharvested crops
-
-        // Iterate through all cropIds for the farmer
-        for (uint256 i = 0; i < cropIds.length(); i++) {
-            uint256 cropId = cropIds.at(i);
+        for (uint256 i = 0; i < farmerCropIds.length(); i++) {
+            uint256 cropId = farmerCropIds.at(i);
             Crop storage crop = crops[cropId];
 
-            // Check if the crop is ready to be harvested
             if (!crop.harvested && block.timestamp >= crop.plantedAt + crop.maturityTime) {
                 crop.harvested = true;
                 farmer.cropsEarned += crop.yield;
@@ -334,25 +302,15 @@ contract FarmCraft is ERC721, Ownable {
                 farmer.experience += crop.yield; // Increase experience for harvesting a crop
                 farmerCrops[farmerId].remove(cropId); // Remove the harvested crop ID from the farmer's crops array
             }
-            
-            // Check if the crop was not harvested
-            if (!crop.harvested) {
-                remainingCrops++; // Increment the counter for unharvested crops
-            }
         }
 
-        // Update the farmer's status based on remaining crops
-        if (remainingCrops > 0) {
-            // If there are remaining unharvested crops, keep the status as farming (1)
-            farmers[farmerId].status = 1;
-        } else {
-            // If all crops were harvested, change the status to idle (0)
+        // Update farmer's status if all crops were harvested
+        if (farmerCrops[farmerId].length() == 0) {
             farmers[farmerId].status = 0;
         }
 
         _initiateMetadata(farmerId);
     }
-
 
     /**
      * @dev Sell crops for GOLD.
@@ -400,6 +358,7 @@ contract FarmCraft is ERC721, Ownable {
 
         Farmer storage farmer = farmers[currentRace.farmerId];
         farmer.gold += currentRace.wager; // Return the wagered gold to the farmer
+        farmers[currentRace.farmerId].status = 0; // Reset farmer status to idle
 
         currentRace = TractorRace(0, 0, false); // Deactivate the current race
     }
