@@ -14,6 +14,7 @@ import { Josefin_Sans } from 'next/font/google'
 import styles from '../styles/Home.module.css';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import { Toaster } from '../components/ui/Toaster';
 
 const font = Josefin_Sans({ subsets: ['latin'] })
 
@@ -83,6 +84,7 @@ function MyApp({ Component, pageProps }: AppProps) {
           <div>
             <Component {...pageProps} />
             <Footer />
+            <Toaster />
           </div>
         </div>
       </RainbowKitProvider>

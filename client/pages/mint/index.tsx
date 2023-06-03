@@ -6,6 +6,7 @@ import CONTRACT_ABI from '../../data/abi.json'
 import { Button } from "../../components/ui/button"
 import Link from "next/link"
 import { useEffect, useState } from "react"
+import { FormMint } from "./FormMint"
 
 const Mint = () => {
     const [ipfsHash, setIpfsHash] = useState("")
@@ -49,6 +50,7 @@ const Mint = () => {
             </Head>
 
             <main className="flex justify-center items-center h-[75vh] flex-col">
+                <FormMint />
                 <Button variant="secondary" size="lg" className="border-4 border-slate-500 hover:border-slate-50 font-semibold text-xl bg-slate-100" disabled={!write || isLoading || isPrepareError} onClick={handleMint}>
                     <UserPlus2 className="mr-2 h-7 w-7" />
                     {isLoading ? 'Minting...' : 'Mint Farmer'}
