@@ -1,7 +1,14 @@
 import React, { useEffect, useState } from 'react'
 import { useContractRead, useContractWrite } from 'wagmi'
+
 import CONTRACT_ABI from '../../../data/abi.json'
 import { Button } from '../../../components/ui/button'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "../../../components/ui/tooltip"
 
 interface ButtonFarmProps {
   farmerTokenId: number
@@ -72,12 +79,27 @@ const ButtonFarm: React.FC<ButtonFarmProps> = ({ farmerTokenId, activeCrops }) =
     // Remove the harvested cropId from the array?
   }
 
+  const plants = [
+    { name: "Lettuce", tooltip: "1 Seed, 2 Yield, 2 Mins", plantFn: plantSeeds, loadingFn: isLoadingFarmStart },
+    { name: "Tomato", tooltip: "3 Seed, 6 Yield, 5 Mins", plantFn: plantSeeds2, loadingFn: isLoadingFarmStart2 },
+    { name: "Pumpkin", tooltip: "10 Seed, 25 Yield, 15 Mins", plantFn: plantSeeds3, loadingFn: isLoadingFarmStart3 },
+  ]
+
   return (
     <>
       <div className="flex flex-row justify-between">
-        <Button variant="secondary" onClick={plantSeeds} disabled={isLoadingFarmStart}>Seed:1 Yield:2 (2m)</Button>
-        <Button variant="secondary" onClick={plantSeeds2} disabled={isLoadingFarmStart}>Seed:3 Yield:6 (5m)</Button>
-        <Button variant="secondary" onClick={plantSeeds3} disabled={isLoadingFarmStart}>Seed:10 Yield:25 (15m)</Button>
+        {plants.map((plant) => (
+          <TooltipProvider key={plant.name}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="secondary" onClick={plant.plantFn} disabled={plant.loadingFn}>Plant {plant.name}</Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{plant.tooltip}</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        ))}
       </div>
       <Button variant="secondary" onClick={harvestCrops} disabled={cropIds.length === 0 || isLoadingFarmEnd}>Harvest Crops</Button>
     </>
