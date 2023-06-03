@@ -29,7 +29,7 @@ const FormSchema = z.object({
     }),
 })
 
-export function FormMint() {
+export default function FormMint() {
     const { data, isLoading: isLoadingWrite, isSuccess: isSuccessWrite, write } = useContractWrite({
         // @ts-ignore
         address: process.env.NEXT_PUBLIC_CONTRACT_ADDRESS,

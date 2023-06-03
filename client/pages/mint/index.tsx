@@ -1,6 +1,6 @@
 import Head from "next/head"
 
-import { FormMint } from "./FormMint"
+import FormMint from "./FormMint"
 
 const Mint = () => {
 
