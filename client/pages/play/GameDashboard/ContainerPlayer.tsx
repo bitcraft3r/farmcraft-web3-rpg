@@ -20,11 +20,11 @@ const ContainerPlayer: React.FC<ContainerPlayerProps> = ({ address, imgIpfsHash,
   return (
     <div className="md:px-6 md:py-2 px-2 py-1 text-center flex md:flex-col flex-row md:justify-center justify-around items-center gap-2 md:text-xl sm:text-lg text-md">
       <div className="flex flex-col items-center">
-        <Image src={`https://gateway.pinata.cloud/ipfs/${imgIpfsHash}`} alt="FarmCraft farmer avatar" width="100" height="100" className="rounded-full p-2" />
+        <Image src={`https://gateway.pinata.cloud/ipfs/${imgIpfsHash}`} alt="FarmCraft Avatar" width="100" height="100" className="rounded-full p-2" />
         <p className="lg:text-2xl md:text-xl text-lg font-bold">
-          {name && name.length <= 8
+          {name && name.length <= 10
             ? name
-            : name?.substring(0, 8) + "..."
+            : name?.substring(0, 10) + "..."
           }
         </p>
       </div>
@@ -34,11 +34,11 @@ const ContainerPlayer: React.FC<ContainerPlayerProps> = ({ address, imgIpfsHash,
         <p className={`${status ? "text-red-500" : "text-emerald-500"} font-bold`}>
           {
             status === 1
-            ? "Farming"
+              ? "Farming"
               : status === 2
-              ? "Foraging"
+                ? "Foraging"
                 : status === 3
-                ? "Racing"
+                  ? "Racing"
                   : "Ready"
           }
         </p>
