@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useContractWrite } from 'wagmi'
 
 import playerStore from "../../../store/contractStore";
@@ -20,6 +20,17 @@ const ButtonSell: React.FC<ButtonSellProps> = ({ farmerTokenId }) => {
     functionName: 'sellCrops',
     args: [farmerId, 5],
   })
+
+  useEffect(() => {
+    if (isSuccess) {
+      console.log(`isSuccess`, isSuccess)
+      console.log(`data`, data?.hash)
+
+      // Update store quantities
+      store.increaseGold(1)
+      store.increaseCrop(-5)
+    }
+  }, [isSuccess, data])
 
   const sellHandler = () => {
     // @ts-ignore
