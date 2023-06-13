@@ -17,6 +17,7 @@ import {
     FormMessage,
 } from "../../components/ui/form"
 import CONTRACT_ABI from '../../data/abi.json'
+import ipfsHashes from '../../data/ipfsHashes'
 
 const FormSchema = z.object({
     name: z.string().min(1, {
@@ -24,9 +25,9 @@ const FormSchema = z.object({
     }).max(16, {
         message: "Username must not be more than 16 characters.",
     }),
-    image: z.string().length(46, {
-        message: "IPFS hash must be 46 characters.",
-    }),
+    // image: z.string().length(46, {
+    //     message: "IPFS hash must be 46 characters.",
+    // }),
 })
 
 export default function FormMint() {
@@ -46,9 +47,12 @@ export default function FormMint() {
     })
 
     function onSubmit(data: z.infer<typeof FormSchema>) {
-        console.log(`Minting NFT with name & image hash:`, form.getValues().name, form.getValues().image)
+        // console.log(`Minting NFT with name & image hash:`, form.getValues().name, form.getValues().image)
         const playerName = form.getValues().name
-        const ipfsHash = form.getValues().image
+        // const ipfsHash = form.getValues().image
+        const randomIndex = Math.floor(Math.random() * ipfsHashes.length);
+        const ipfsHash = ipfsHashes[randomIndex];
+        console.log(`Minting NFT with name:`, form.getValues().name, `& img hash:`, ipfsHash)
         toast({
             title: "You submitted the following values:",
             description: (
@@ -64,7 +68,7 @@ export default function FormMint() {
 
     const formFields = [
         { name: "name", label: "Username", placeholder: "Crafter" },
-        { name: "image", label: "Image IPFS Hash", placeholder: "QmRthR1p7cwnPJbinJprXvchdkqJr21AbjjfE6UGMR3mkt" },
+        // { name: "image", label: "Image IPFS Hash", placeholder: "QmRthR1p7cwnPJbinJprXvchdkqJr21AbjjfE6UGMR3mkt" },
     ]
 
     return (
