@@ -100,7 +100,7 @@ const GameDashboard: React.FC<GameDashboardProps> = ({ address }) => {
 
     }
 
-  }, [])
+  }, [dataFarmer])
 
 
   return (
