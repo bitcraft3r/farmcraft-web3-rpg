@@ -64,6 +64,7 @@ const ButtonFarm: React.FC<ButtonFarmProps> = ({ farmerTokenId, activeCrops }) =
       // Update the store values
       store.setStatus(1)
       store.increaseSeed(-1)
+      store.increaseExperience(1)
 
       // REFRESH PAGE ON SUCCESSFUL PLANT AFTER 5 SECONDS
       if (dataFarmStart) {
@@ -81,6 +82,7 @@ const ButtonFarm: React.FC<ButtonFarmProps> = ({ farmerTokenId, activeCrops }) =
       // Update the store values
       store.setStatus(1)
       store.increaseSeed(-3)
+      store.increaseExperience(1)
 
       // REFRESH PAGE ON SUCCESSFUL PLANT AFTER 5 SECONDS
       if (dataFarmStart2) {
@@ -98,6 +100,7 @@ const ButtonFarm: React.FC<ButtonFarmProps> = ({ farmerTokenId, activeCrops }) =
       // Update the store values
       store.setStatus(1)
       store.increaseSeed(-10)
+      store.increaseExperience(1)
 
       // REFRESH PAGE ON SUCCESSFUL PLANT AFTER 5 SECONDS
       if (dataFarmStart3) {
