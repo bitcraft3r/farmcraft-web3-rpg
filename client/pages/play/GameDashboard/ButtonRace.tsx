@@ -111,7 +111,20 @@ const ButtonRace: React.FC<ButtonRaceProps> = ({ farmerTokenId }) => {
 
   return (
     <>
-      <Button variant="secondary" onClick={enterRace} disabled={isLoadingRaceEnter || store.status !== 0}>Enter Race</Button>
+      <Button
+        variant="secondary"
+        onClick={enterRace}
+        disabled={
+          isLoadingRaceEnter ||
+          store.status !== 0 ||
+          // @ts-ignore
+          store.gold < 1 ||
+          // @ts-ignore
+          (dataCurrentRace?.[2] === true ?? undefined)
+        }
+      >
+        Enter Race
+      </Button>
       <Button variant="secondary" onClick={leaveRace} disabled={isLoadingRaceLeave || store.status !== 3}>Leave Race</Button>
       <Button
         variant="secondary"
@@ -120,7 +133,7 @@ const ButtonRace: React.FC<ButtonRaceProps> = ({ farmerTokenId }) => {
           isLoadingRaceChallenge ||
           store.status !== 0 ||
           // @ts-ignore
-          dataCurrentRace[2] === false
+          (dataCurrentRace?.[2] === false ?? undefined)
         }
       >
         Challenge Race
