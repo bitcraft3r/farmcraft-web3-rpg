@@ -36,9 +36,12 @@ const Home: NextPage = () => {
       <Head>
         <title>FarmCraft - Farming simulator RPG</title>
         <meta
-          content="Farming simulator RPG on the blockchain."
+          content="Farming simulator RPG on the blockchain. Live on Scroll alpha testnet."
           name="description"
         />
+        <meta property="og:title" content="FarmCraft - Farming simulator RPG" />
+        <meta property="og:description" content="Farming simulator RPG on the blockchain. Live on Scroll alpha testnet." />
+        <meta property="og:image" content="https://farmcraft.vercel.app/images/banner.webp" />
         <link href="/favicon.ico" rel="icon" />
       </Head>
 
