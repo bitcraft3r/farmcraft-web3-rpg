@@ -27,6 +27,7 @@ const ButtonSell: React.FC<ButtonSellProps> = ({ farmerTokenId }) => {
       console.log(`data`, data?.hash)
 
       // Update store quantities
+      store.increaseExperience(1) // equal to gold earned
       store.increaseGold(1)
       store.increaseCrop(-5)
     }
