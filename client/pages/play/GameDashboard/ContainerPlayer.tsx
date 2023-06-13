@@ -46,6 +46,9 @@ const ContainerPlayer = () => {
                   : "Ready"
           }
         </p>
+        <p className="text-emerald-500">
+          {store.activeCrops.length > 0 && `Active: ${store.activeCrops.length}`}
+        </p>
       </div>
       <div>
         <p>Gold: {store.gold}</p>
