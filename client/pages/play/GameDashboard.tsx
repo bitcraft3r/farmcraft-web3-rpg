@@ -1,15 +1,16 @@
+// @ts-nocheck
+
 import Image from 'next/image'
 import React, { useEffect, useState } from 'react'
 import { useContractRead } from 'wagmi'
-import { MapPin } from 'lucide-react'
 
+import playerStore, { contractStore } from "../../store/contractStore";
 import CONTRACT_ABI from '../../data/abi.json'
 import ButtonFarm from './GameDashboard/ButtonFarm'
 import ButtonQuest from './GameDashboard/ButtonQuest'
 import ButtonSell from './GameDashboard/ButtonSell'
 import ButtonBuy from './GameDashboard/ButtonBuy'
 import ContainerPlayer from './GameDashboard/ContainerPlayer'
-
 import GameDialog from './GameDashboard/GameDialog'
 import ButtonRace from './GameDashboard/ButtonRace'
 
@@ -20,6 +21,7 @@ interface GameDashboardProps {
 }
 
 const GameDashboard: React.FC<GameDashboardProps> = ({ address }) => {
+  const store = playerStore();
 
   const { data: dataTokenId, isError: isErrorTokenId, isLoading: isLoadingTokenId } = useContractRead({
     // @ts-ignore
@@ -48,9 +50,51 @@ const GameDashboard: React.FC<GameDashboardProps> = ({ address }) => {
     }
 
     if (dataFarmer) {
-      // console.log(`dataFarmer in GameDashboard`, dataFarmer)
+      console.log(`dataFarmer in GameDashboard`, dataFarmer)
+
       // @ts-ignore
       setFarmerData(dataFarmer)
+
+      // store.setPlayer(dataFarmer); // ERROR - Type definition in contractStore is incorrect, maybe need BigInt instead of number.
+
+      console.log(`dataFarmer[0] in GameDashboard`, dataFarmer[0])
+      console.log(`dataFarmer[1] in GameDashboard`, Number(dataFarmer[1]))
+      console.log(`dataFarmer[2] in GameDashboard`, Number(dataFarmer[2]))
+      console.log(`dataFarmer[3] in GameDashboard`, Number(dataFarmer[3]))
+      console.log(`dataFarmer[4] in GameDashboard`, Number(dataFarmer[4]))
+      console.log(`dataFarmer[5] in GameDashboard`, Number(dataFarmer[5]))
+      console.log(`dataFarmer[6] in GameDashboard`, Number(dataFarmer[6]))
+      console.log(`dataFarmer[7] in GameDashboard`, Number(dataFarmer[7]))
+      console.log(`dataFarmer[8] in GameDashboard`, dataFarmer[8])
+      console.log(`dataFarmer[9] in GameDashboard`, dataFarmer[9])
+      console.log(`dataFarmer[10] in GameDashboard`, Number(dataFarmer[10]))
+
+      // PREPARE FARMER DATA FOR ZUSTAND STORE
+      let thisOwner = dataFarmer[0];
+      let thisExperience = Number(dataFarmer[1]);
+      let thisActiveCrops = dataFarmer[2];
+      let thisSeed = Number(dataFarmer[3]);
+      let thisGold = Number(dataFarmer[4]);
+      let thisCrop = Number(dataFarmer[5]);
+      let thisQuestEndTime = Number(dataFarmer[6]);
+      let thisStatus = Number(dataFarmer[7]);
+      let thisImageIpfsHash = dataFarmer[8];
+      let thisName = dataFarmer[9];
+      let thisRacesWon = Number(dataFarmer[10]);
+
+      // ADD FARMER DATA TO ZUSTAND STORE
+      store.setOwner(thisOwner);
+      store.setExperience(thisExperience);
+      store.setActiveCrops(thisActiveCrops);
+      store.setSeed(thisSeed);
+      store.setGold(thisGold);
+      store.setCrop(thisCrop);
+      store.setQuestEndTime(thisQuestEndTime);
+      store.setStatus(thisStatus);
+      store.setImageIpfsHash(thisImageIpfsHash);
+      store.setName(thisName);
+      store.setWins(thisRacesWon);
+
     }
 
   }, [])
@@ -64,7 +108,7 @@ const GameDashboard: React.FC<GameDashboardProps> = ({ address }) => {
         <>
           {/* Player Attributes & Resources */}
           <div className="md:absolute md:top-[15%] md:left-[5%] bg-slate-500 bg-opacity-50 rounded-xl border-8 border-slate-800">
-            <ContainerPlayer address={address} imgIpfsHash={farmerData[8]} experience={Number(farmerData[1])} status={Number(farmerData[7])} seeds={Number(farmerData[3])} gold={Number(farmerData[4])} crops={Number(farmerData[5])} name={farmerData[9]} wins={Number(farmerData[10])} />
+            <ContainerPlayer />
           </div>
 
           {/* Game Screen */}
