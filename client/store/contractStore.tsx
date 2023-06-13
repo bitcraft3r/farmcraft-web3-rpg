@@ -49,7 +49,7 @@ interface PlayerState {
     // setPlayer: (player: PlayerStructOutput | undefined) => void
     setOwner: (owner: string) => void
     setExperience: (experience: number | BigInt | undefined) => void
-    setActiveCrops: (activeCrops: number[] | undefined) => void
+    setActiveCrops: (activeCrops: number[]) => void
     setSeed: (seed: number | BigInt | undefined) => void
     setGold: (gold: number | BigInt | undefined) => void
     setCrop: (crop: number | BigInt | undefined) => void
@@ -91,7 +91,7 @@ const playerStore = persist<PlayerState>(
         // setPlayer: (player) => set(() => ({ player: player })),
         setOwner: (owner) => set(() => ({ owner: owner })),
         setExperience: (experience) => set(() => ({ experience: experience })),
-        setActiveCrops: (activeCrops) => set(() => ({ activeCrops: activeCrops })),
+        setActiveCrops: (activeCrops) => set(() => ({ activeCrops })),
         setSeed: (seed) => set(() => ({ seed: seed })),
         setGold: (gold) => set(() => ({ gold: gold })),
         setCrop: (crop) => set(() => ({ crop: crop })),

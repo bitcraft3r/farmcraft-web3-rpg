@@ -59,7 +59,7 @@ const GameDashboard: React.FC<GameDashboardProps> = ({ address }) => {
 
       // console.log(`dataFarmer[0] in GameDashboard`, dataFarmer[0])
       // console.log(`dataFarmer[1] in GameDashboard`, Number(dataFarmer[1]))
-      // console.log(`dataFarmer[2] in GameDashboard`, Number(dataFarmer[2]))
+      // console.log(`dataFarmer[2] in GameDashboard`, dataFarmer[2])
       // console.log(`dataFarmer[3] in GameDashboard`, Number(dataFarmer[3]))
       // console.log(`dataFarmer[4] in GameDashboard`, Number(dataFarmer[4]))
       // console.log(`dataFarmer[5] in GameDashboard`, Number(dataFarmer[5]))
@@ -72,7 +72,7 @@ const GameDashboard: React.FC<GameDashboardProps> = ({ address }) => {
       // PREPARE FARMER DATA FOR ZUSTAND STORE
       let thisOwner = dataFarmer[0];
       let thisExperience = Number(dataFarmer[1]);
-      let thisActiveCrops = dataFarmer[2];
+      let thisActiveCrops = dataFarmer[2]; // cannot directly serialize a BigInt value in Zustand
       let thisSeed = Number(dataFarmer[3]);
       let thisGold = Number(dataFarmer[4]);
       let thisCrop = Number(dataFarmer[5]);
@@ -82,10 +82,13 @@ const GameDashboard: React.FC<GameDashboardProps> = ({ address }) => {
       let thisName = dataFarmer[9];
       let thisRacesWon = Number(dataFarmer[10]);
 
+      // Convert BigInt values in array into numbers before storing the array in store, to avoid `TypeError: Do not know how to serialize a BigInt`
+      const activeCropsAsNumbers = thisActiveCrops.map((bigIntValue) => Number(bigIntValue))
+
       // ADD FARMER DATA TO ZUSTAND STORE
       store.setOwner(thisOwner);
       store.setExperience(thisExperience);
-      store.setActiveCrops(thisActiveCrops);
+      store.setActiveCrops(activeCropsAsNumbers); // cannot directly serialize a BigInt value in Zustand
       store.setSeed(thisSeed);
       store.setGold(thisGold);
       store.setCrop(thisCrop);
