@@ -1,6 +1,7 @@
 import React from 'react'
 import { useContractWrite } from 'wagmi'
 
+import playerStore from "../../../store/contractStore";
 import CONTRACT_ABI from '../../../data/abi.json'
 import { Button } from '../../../components/ui/button'
 
@@ -9,6 +10,7 @@ interface ButtonSellProps {
 }
 
 const ButtonSell: React.FC<ButtonSellProps> = ({ farmerTokenId }) => {
+  const store = playerStore()
   const farmerId = farmerTokenId
 
   const { data, isLoading, isSuccess, write } = useContractWrite({
@@ -25,7 +27,14 @@ const ButtonSell: React.FC<ButtonSellProps> = ({ farmerTokenId }) => {
   }
 
   return (
-    <Button variant="secondary" onClick={sellHandler} disabled={isLoading}>Sell 5 Crops for 1 GOLD</Button>
+    <Button
+      variant="secondary"
+      onClick={sellHandler}
+      // @ts-ignore
+      disabled={isLoading || store.crop < 5}
+    >
+      Sell 5 Crops for 1 GOLD
+    </Button>
   )
 }
 
