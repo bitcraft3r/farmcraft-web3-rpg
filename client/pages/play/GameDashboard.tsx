@@ -57,17 +57,17 @@ const GameDashboard: React.FC<GameDashboardProps> = ({ address }) => {
 
       // store.setPlayer(dataFarmer); // ERROR - Type definition in contractStore is incorrect, maybe need BigInt instead of number.
 
-      console.log(`dataFarmer[0] in GameDashboard`, dataFarmer[0])
-      console.log(`dataFarmer[1] in GameDashboard`, Number(dataFarmer[1]))
-      console.log(`dataFarmer[2] in GameDashboard`, Number(dataFarmer[2]))
-      console.log(`dataFarmer[3] in GameDashboard`, Number(dataFarmer[3]))
-      console.log(`dataFarmer[4] in GameDashboard`, Number(dataFarmer[4]))
-      console.log(`dataFarmer[5] in GameDashboard`, Number(dataFarmer[5]))
-      console.log(`dataFarmer[6] in GameDashboard`, Number(dataFarmer[6]))
-      console.log(`dataFarmer[7] in GameDashboard`, Number(dataFarmer[7]))
-      console.log(`dataFarmer[8] in GameDashboard`, dataFarmer[8])
-      console.log(`dataFarmer[9] in GameDashboard`, dataFarmer[9])
-      console.log(`dataFarmer[10] in GameDashboard`, Number(dataFarmer[10]))
+      // console.log(`dataFarmer[0] in GameDashboard`, dataFarmer[0])
+      // console.log(`dataFarmer[1] in GameDashboard`, Number(dataFarmer[1]))
+      // console.log(`dataFarmer[2] in GameDashboard`, Number(dataFarmer[2]))
+      // console.log(`dataFarmer[3] in GameDashboard`, Number(dataFarmer[3]))
+      // console.log(`dataFarmer[4] in GameDashboard`, Number(dataFarmer[4]))
+      // console.log(`dataFarmer[5] in GameDashboard`, Number(dataFarmer[5]))
+      // console.log(`dataFarmer[6] in GameDashboard`, Number(dataFarmer[6]))
+      // console.log(`dataFarmer[7] in GameDashboard`, Number(dataFarmer[7]))
+      // console.log(`dataFarmer[8] in GameDashboard`, dataFarmer[8])
+      // console.log(`dataFarmer[9] in GameDashboard`, dataFarmer[9])
+      // console.log(`dataFarmer[10] in GameDashboard`, Number(dataFarmer[10]))
 
       // PREPARE FARMER DATA FOR ZUSTAND STORE
       let thisOwner = dataFarmer[0];

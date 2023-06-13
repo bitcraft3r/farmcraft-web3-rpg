@@ -9,17 +9,17 @@ const ContainerPlayer = () => {
   const store = playerStore();
 
   // USE FARMER DATA FROM ZUSTAND STORE
-  console.log(`store.owner`, store.owner)
-  console.log(`store.experience`, store.experience)
-  console.log(`store.activeCrops`, store.activeCrops)
-  console.log(`store.seed`, store.seed)
-  console.log(`store.gold`, store.gold)
-  console.log(`store.crop`, store.crop)
-  console.log(`store.questEndTime`, store.questEndTime)
-  console.log(`store.status`, store.status)
-  console.log(`store.imageIpfsHash`, store.imageIpfsHash)
-  console.log(`store.name`, store.name)
-  console.log(`store.wins`, store.wins)
+  // console.log(`store.owner`, store.owner)
+  // console.log(`store.experience`, store.experience)
+  // console.log(`store.activeCrops`, store.activeCrops)
+  // console.log(`store.seed`, store.seed)
+  // console.log(`store.gold`, store.gold)
+  // console.log(`store.crop`, store.crop)
+  // console.log(`store.questEndTime`, store.questEndTime)
+  // console.log(`store.status`, store.status)
+  // console.log(`store.imageIpfsHash`, store.imageIpfsHash)
+  // console.log(`store.name`, store.name)
+  // console.log(`store.wins`, store.wins)
 
   return (
     <div className="md:px-6 md:py-2 px-2 py-1 text-center flex md:flex-col flex-row md:justify-center justify-around items-center gap-2 md:text-xl sm:text-lg text-md">

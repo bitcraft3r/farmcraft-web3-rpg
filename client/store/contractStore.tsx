@@ -59,6 +59,8 @@ interface PlayerState {
     setName: (name: string) => void
     setWins: (wins: number | BigInt) => void
     setSelectedPlayer: (selectedPlayer: number) => void
+    increaseExperience: (by: number | BigInt) => void
+    increaseSeed: (by: number | BigInt) => void
 }
 
 // TODO: Get type definitions for contract. `Typechain` doesn't work with Viem. Try: https://abitype.dev/guide/walkthrough.html.
@@ -97,6 +99,10 @@ const playerStore = persist<PlayerState>(
         setName: (name) => set(() => ({ name: name })),
         setWins: (wins) => set(() => ({ wins: wins })),
         setSelectedPlayer: (selectedPlayer) => set(() => ({ selectedPlayer: selectedPlayer })),
+        // @ts-ignore
+        increaseExperience: (by) => set((state) => ({ experience: state.experience + by })),
+        // @ts-ignore
+        increaseSeed: (by) => set((state) => ({ seed: state.seed + by })),
     }),
     {
         name: "Crafter",
