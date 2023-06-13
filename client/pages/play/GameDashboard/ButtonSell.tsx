@@ -42,7 +42,7 @@ const ButtonSell: React.FC<ButtonSellProps> = ({ farmerTokenId }) => {
       variant="secondary"
       onClick={sellHandler}
       // @ts-ignore
-      disabled={isLoading || store.crop < 5}
+      disabled={isLoading || store.crop < 5 || store.status !== 0}
     >
       Sell 5 Crops for 1 GOLD
     </Button>
