@@ -42,7 +42,7 @@ const ButtonBuy: React.FC<ButtonBuyProps> = ({ farmerTokenId }) => {
       variant="secondary"
       onClick={buyHandler}
       // @ts-ignore
-      disabled={isLoading || store.seed < 3 || store.status !== 0}
+      disabled={isLoading || store.gold < 1 || store.status !== 0}
     >
       Buy 3 Seeds with 1 GOLD
     </Button>
