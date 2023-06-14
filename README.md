@@ -1,45 +1,67 @@
 # FarmCraft Web3 RPG
 
-FarmCraft is a blockchain-based game where players can become virtual farmers and experience the joys and challenges of managing a farm. The game is built on the Ethereum blockchain using the Solidity programming language. Players can own and customize their farmer avatar, plant and harvest crops, complete quests, and earn rewards.
+FarmCraft is an on-chain farming simulator and idle-clicker game, where players can become virtual farmers and experience the joys and challenges of managing a farm. Players can own and customize their farmer avatar, plant and harvest crops, complete quests, earn rewards, and participate in tractor races for gold and glory.
+
+- Mint & Play: https://farmcraft.vercel.app/
+- View NFT Collection on Zonic: https://testnet.zonic.app/collection/farmcraft
+- View Contract on Blockscout: https://blockscout.scroll.io/address/0x4d71355cfB84aC927D52C2865BDFF7b1f5F23F86/
+- Bridge to Scroll Alpha Testnet: https://scroll.io/portal
+
+FarmCraft is built with Solidity and launched on the Scroll alpha testnet.
 
 # Features
 
 ## Farmer NFTs
 
-- Each player can mint a unique Farmer NFT (non-fungible token) that represents their virtual farmer character.
-- The Farmer NFT contains information such as experience, level, seeds, gold, crops earned, and other attributes.
-
-## Crop Management
-- Players can buy seeds using gold, the in-game currency. Each seed has a cost in gold and can be used to plant crops.
-- Crops have different maturity times and yields. Once a crop matures, it can be harvested, and the player earns crops based on the yield.
-- Players can plant multiple crops and manage them over time.
-
-## Quests and Rewards
-- Players can undertake foraging quests, which require a specific duration to complete.
-- Completing quests rewards players with seeds and experience points.
-- Experience points contribute to leveling up the farmer character.
-
-## Buying and Selling
-- Players can sell crops for gold. The amount of gold earned is determined by the number of crops sold.
-- Gold can be used to buy more seeds or for other in-game purposes.
+- Each player can create a unique Farmer NFT (non-fungible token) representing their virtual farmer character.
+- Players can personalize the NFTs with their username and AI-generated avatars.
+- The Farmer NFT contains metadata such as experience, seeds, gold, earned crops, and other attributes.
+- Each player can only mint a single Farmer NFT.
 
 ## Customization
-- Farmers can be customized with an image that is represented by an IPFS hash. This allows players to personalize their farmer characters.
+
+- Players can assign a username to their Farmer, which is represented by a string.
+- Farmers can be customized with an image, represented by an IPFS hash.
+
+## Quests and Rewards
+
+- Players can embark on foraging quests, which take 1 minute to complete.
+- Successful completion of a foraging quest rewards players with 1 seed and 1 experience point.
+
+## Crop Management
+
+- Players can purchase seeds using the in-game currency, gold. Each seed has a specific gold cost and can be used for planting crops.
+- Seeds can also be earned through foraging quests.
+- Crops have varying maturity times and yields. When a crop reaches maturity, players can harvest it and receive crops and experience based on the yield.
+- There are three types of crops available in the game:
+  - Lettuce: Costs 1 seed, takes 2 minutes to mature, and yields 2 crops.
+  - Tomato: Costs 3 seeds, takes 5 minutes to mature, and yields 6 crops.
+  - Pumpkin: Costs 10 seeds, takes 15 minutes to mature, and yields 25 crops.
+- Players can cultivate multiple crops and manage them over time.
+
+## Buying and Selling
+
+- Players have the ability to sell 5 crops for 1 gold.
+- Gold can be used to purchase additional seeds or for other in-game purposes.
+
+## Tractor Race
+
+- Players can engage in 1v1 challenges and place wagers for gold.
+- Players with higher experience enjoy a slight advantage in the races.
 
 # Smart Contract Details
 
-The smart contract is written in Solidity and utilizes the ERC721 standard for the Farmer NFTs. It includes the following key functions:
+The smart contract, written in Solidity, implements the ERC721 standard for the Farmer NFTs. It incorporates the following key functions:
 
-- Minting a new farmer NFT.
+- Minting a new Farmer NFT.
 - Buying seeds using gold.
-- Starting and completing foraging quests.
+- Initiating and completing foraging quests.
 - Planting and harvesting crops.
 - Selling crops for gold.
-- Adding new crop types with different attributes.
-
-The smart contract also includes mappings to store information about farmers, crops, crop types, and the ownership of farmer NFTs.
+- Racing against other farmers for gold.
+- Adding new crop types with distinct attributes.
+- The smart contract also includes mappings to store information about farmers, crops, crop types, and the ownership of Farmer NFTs.
 
 # License
 
 The smart contract code is licensed under the MIT license.
- 
