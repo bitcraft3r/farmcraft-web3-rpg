@@ -8,7 +8,7 @@ const Footer = () => {
     return (
         <footer className={styles.footer}>
             <div>
-                Made with ❤️ by Omniv3rse.com
+                
             </div>
             <div className="flex flex-row">
                 <Link href="https://twitter.com/omniv3rse_" rel="noopener noreferrer" target="_blank">

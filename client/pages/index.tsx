@@ -23,7 +23,7 @@ const gridContent = [
     description: "Collect and customize unique farmer NFTs with distinct attributes and features."
   },
   {
-    slug: "https://discord.gg/DGQCrEjWsP",
+    slug: "https://discord.gg/scroll",
     external: true,
     title: "Join the Community",
     description: "Connect, trade, and share with fellow farmers in a vibrant community."
