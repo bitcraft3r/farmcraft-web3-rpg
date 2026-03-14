@@ -11,7 +11,7 @@ const Footer = () => {
                 
             </div>
             <div className="flex flex-row">
-                <Link href="https://twitter.com/omniv3rse_" rel="noopener noreferrer" target="_blank">
+                {/* <Link href="https://twitter.com/omniv3rse_" rel="noopener noreferrer" target="_blank">
                     <Twitter size={24} />
                 </Link>
                 <Link href="https://github.com/sov3333/farmcraft-web3-rpg" rel="noopener noreferrer" target="_blank">
@@ -19,7 +19,7 @@ const Footer = () => {
                 </Link>
                 <Link href="https://omniv3rse.com" rel="noopener noreferrer" target="_blank">
                     <Globe size={24} className="ml-4" />
-                </Link>
+                </Link> */}
             </div>
         </footer>
     )
